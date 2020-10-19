@@ -1,0 +1,11 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+AZ Ft Huachuca,Mule 146.760,25K,Turbo,146.76,146.16,Off,162.2,Off
+AZ Ft Huachuca,Mule 449.525,25K,Turbo,449.525,444.525,Off,100,Off
+AZ Ft Huachuca,MuleARES 147.020,25K,Turbo,147.02,147.62,Off,162.2,Off
+AZ Ft Huachuca,MustngC 442.450,25K,Turbo,442.45,447.45,77,77,Off
+AZ Ft Huachuca,T_Elphnt 449.375,25K,Turbo,449.375,444.375,Off,107.2,Off
+AZ Ft Huachuca,EAARS Greens Pk,25K,Turbo,146.7,146.1,Off,141.3,Off
+AZ Ft Huachuca,EAARS Heliograph,25K,Turbo,440.7,445.7,Off,141.3,Off
+AZ Ft Huachuca,EAARS Mt Lemmon,25K,Turbo,147.16,147.76,Off,141.3,Off
+AZ Ft Huachuca,EAARS Mule Mt,25K,Turbo,147.08,147.68,Off,141.3,Off
+AZ Ft Huachuca,EAARS Pinal Pk,25K,Turbo,145.41,144.81,Off,141.3,Off
