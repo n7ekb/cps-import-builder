@@ -1,0 +1,8 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+OR Analog Rptrs,Gearhart 146.800,25K,Turbo,146.8000,146.2000,Off,118.8,Off
+OR Analog Rptrs,GrantsP 147.300,25K,Turbo,147.3000,147.9000,Off,136.5,Off
+OR Analog Rptrs,Megler 145.450,25K,Turbo,145.4500,144.8500,Off,118.8,Off
+OR Analog Rptrs,Nicolai 146.760,25K,Turbo,146.7600,146.1600,Off,118.8,Off
+OR Analog Rptrs,Seaside 145.490,25K,Turbo,145.4900,144.8900,Off,118.8,Off
+OR Analog Rptrs,Seaside 444.875,25K,Turbo,443.8750,448.8750,Off,100,Off
+OR Analog Rptrs,Wikiup 442.500,25K,Turbo,442.5000,447.5000,Off,118.8,Off

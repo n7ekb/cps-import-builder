@@ -1,0 +1,8 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+Public Safety,AstoriaPD,12.5K,Low,155.2500,155.2500,77,Off,On
+Public Safety,ClatsopSO1,12.5K,Low,155.7900,155.7900,173.8,Off,On
+Public Safety,ClatsopSO2,12.5K,Low,154.8000,154.8000,123,Off,On
+Public Safety,SeasidePD,12.5K,Low,154.6500,154.6500,173.8,Off,On
+Public Safety,RedNet,12.5K,Low,153.83,153.83,Off,Off,On
+Public Safety,LERN,12.5K,Low,155.37,155.37,Off,Off,On
+Public Safety,OSCCR-OnSceneCmd,12.5K,Low,156.135,156.135,Off,Off,On

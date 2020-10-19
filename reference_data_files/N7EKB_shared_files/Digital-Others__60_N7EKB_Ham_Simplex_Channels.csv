@@ -1,0 +1,7 @@
+Zone,Channel Name,Power,RX Freq,TX Freq,Color Code,Talk Group,TimeSlot,Call Type,TX Permit
+Ham Simplex,DMR-ch01 145.790,Turbo,145.79,145.79,1,99_Simplex,1,Group Call,Always
+Ham Simplex,DMR-ch01 441.000,Turbo,441,441,1,99_Simplex,1,Group Call,Always
+Ham Simplex,DMR-ch02 145.510,Turbo,145.51,145.51,1,99_Simplex,1,Group Call,Always
+Ham Simplex,DMR-ch02 446.500,Turbo,446.5,446.5,1,99_Simplex,1,Group Call,Always
+Ham Simplex,DMR-ch03 446.075,Turbo,446.075,446.075,1,99_Simplex,1,Group Call,Always
+Ham Simplex,DMR-ch04 433.450,Turbo,433.45,433.45,1,99_Simplex,1,Group Call,Always

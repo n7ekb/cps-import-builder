@@ -1,0 +1,10 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+Public Safety,TC-Fire-Disp,12.5K,High,154.4300,154.4300,88.5,Off,On
+Public Safety,TC-Fire-TAC5,12.5K,High,154.0100,154.0100,203.5,Off,On
+Public Safety,TC_Tac-1,12.5K,Low,155.5500,155.5500,136.5,Off,On
+Public Safety,TC_Tac-2,12.5K,Low,156.1500,156.1500,88.5,Off,On
+Public Safety,TC_Tac-5,12.5K,Low,154.8000,154.8000,Off,Off,On
+Public Safety,TC_Tac-9,12.5K,Low,158.8580,158.8580,107.2,Off,On
+Public Safety,RedNet,12.5K,Low,153.8300,153.8300,Off,Off,On
+Public Safety,LERN,12.5K,Low,155.3700,155.3700,Off,Off,On
+Public Safety,OSCCR-OnSceneCmd,12.5K,Low,156.1350,156.1350,Off,Off,On

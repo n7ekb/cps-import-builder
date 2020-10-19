@@ -1,0 +1,6 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+OR N7PIR Net,N7PIR-GrizzlyMt,25K,Turbo,444.1750,449.1750,Off,103.5,Off
+OR N7PIR Net,N7PIR-MtHood,25K,Turbo,443.8750,448.8750,Off,103.5,Off
+OR N7PIR Net,N7PIR-Salem,25K,Turbo,440.0750,445.0750,Off,103.5,Off
+OR N7PIR Net,N7PIR_Portland,25K,Turbo,440.4500,445.4500,Off,103.5,Off
+OR N7PIR Net,N7PIR_Seaside,25K,Turbo,443.8750,448.8750,Off,100,Off

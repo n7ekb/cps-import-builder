@@ -1,0 +1,7 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+Marine,Mar-Ch09 156.450,25K,High,156.4500,156.4500,Off,Off,On
+Marine,Mar-Ch16 156.800,25K,High,156.8000,156.8000,Off,Off,On
+Marine,Mar-Ch22 157.100,25K,High,157.1000,157.1000,Off,Off,On
+Marine,Mar-Ch22-Dplx,25K,High,161.7000,157.1000,Off,Off,On
+Marine,Mar-Ch68 156.425,25K,High,156.4250,156.4250,Off,Off,On
+Marine,Mar-Ch69 156.475,25K,High,156.4750,156.4750,Off,Off,On

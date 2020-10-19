@@ -1,0 +1,18 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+Beachnet,BNet-Oly 444.950,25K,Turbo,444.9500,449.9500,Off,118.8,Off
+Beachnet,OceanPrk 145.170,25K,Turbo,145.1700,144.5700,Off,118.8,Off
+Beachnet,NCove-1 145.310,25K,Turbo,145.3100,144.7100,Off,118.8,Off
+Beachnet,NCove-2 145.310,25K,Turbo,145.3100,144.7100,Off,114.8,Off
+Beachnet,Cosmo 145.390,25K,Turbo,145.3900,144.7900,Off,118.8,Off
+Beachnet,GraysRvr 147.020,25K,Turbo,147.0200,147.6200,Off,118.8,Off
+Beachnet,Megler 147.180,25K,Turbo,147.1800,147.7800,Off,82.5,Off
+Beachnet,SBend 147.340,25K,Turbo,147.3400,147.9400,Off,82.5,Off
+Beachnet,Naselle 440.675,25K,Turbo,440.6750,445.6750,Off,118.8,Off
+Beachnet,KO-Peak 441.675,25K,Turbo,441.6750,446.6750,Off,118.8,Off
+Beachnet,SBend 442.675,25K,Turbo,442.6750,447.6750,Off,118.8,Off
+Beachnet,Minot 444.050,25K,Turbo,444.0500,449.0500,Off,118.8,Off
+Beachnet,OcnShore 444.200,25K,Turbo,444.2000,449.2000,Off,118.8,Off
+Beachnet,NCove-3 444.400,25K,Turbo,444.4000,449.4000,Off,118.8,Off
+Beachnet,Nicolai 444.500,25K,Turbo,444.5000,449.5000,Off,118.8,Off
+Beachnet,Neilton 444.700,25K,Turbo,444.7000,449.7000,Off,118.8,Off
+Beachnet,LongBch 444.800,25K,Turbo,444.8000,449.8000,Off,118.8,Off

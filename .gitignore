@@ -1,0 +1,10 @@
+# ignore the output files
+channels_*.csv
+file_list_*.LST
+receive_groups_*.csv
+scan_lists_*.csv
+talk_groups_*.csv
+zones_*.csv
+
+# ignore Jupyter Notebook checkpoints directory
+.ipynb_checkpoints/

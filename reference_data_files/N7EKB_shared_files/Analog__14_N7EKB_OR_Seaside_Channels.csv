@@ -1,0 +1,9 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+OR Seaside,Gearhart 146.800,25K,Turbo,146.8,146.2,Off,118.8,Off
+OR Seaside,LongBch 444.800,25K,Turbo,444.8000,449.8000,Off,118.8,Off
+OR Seaside,Megler 145.450,25K,Turbo,145.4500,144.8500,Off,118.8,Off
+OR Seaside,Megler 147.180,25K,Turbo,147.1800,147.7800,Off,82.5,Off
+OR Seaside,Nicolai 146.760,25K,Turbo,146.76,146.16,Off,118.8,Off
+OR Seaside,Seaside 145.490,25K,Turbo,145.49,144.89,Off,118.8,Off
+OR Seaside,Seaside 444.875,25K,Turbo,443.875,448.875,Off,100,Off
+OR Seaside,Wikiup 442.500,25K,Turbo,442.5,447.5,Off,118.8,Off

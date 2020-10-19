@@ -1,0 +1,8 @@
+Zone,Channel Name,Power,RX Freq,TX Freq,Color Code,Talk Group,TimeSlot,Call Type,TX Permit
+ETC ARES,PC-32d DMR,Turbo,146.5500,146.5500,1,99_Simplex,1,Group Call,Always
+ETC ARES,City-1 453.3625,High,453.3625,453.3625,7,1_WW,1,Group Call,Always
+ETC ARES,City-2 453.5375,High,453.5375,453.5375,7,2_Europe/Loc,1,Group Call,Always
+ETC ARES,EOCTac1 453.5375,High,453.5375,453.5375,7,99_Simplex,1,Group Call,Always
+ETC ARES,CapPk PNWR,Turbo,440.7125,445.7125,1,PNWR,2,Group Call,Same Color Code
+ETC ARES,BawFaw PNWR,Turbo,146.5000,147.5000,1,PNWR,2,Group Call,Same Color Code
+ETC ARES,Baldi PNWR,Turbo,441.3500,446.3500,1,PNWR,2,Group Call,Same Color Code

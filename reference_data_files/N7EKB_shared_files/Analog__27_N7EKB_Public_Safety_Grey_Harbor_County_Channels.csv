@@ -1,0 +1,5 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+Public Safety,Grey-E Disp,12.5K,Low,155.5650,155.5650,167.9,Off,On
+Public Safety,RedNet,12.5K,Low,153.83,153.83,Off,Off,On
+Public Safety,LERN,12.5K,Low,155.37,155.37,Off,Off,On
+Public Safety,OSCCR-OnSceneCmd,12.5K,Low,156.135,156.135,Off,Off,On
