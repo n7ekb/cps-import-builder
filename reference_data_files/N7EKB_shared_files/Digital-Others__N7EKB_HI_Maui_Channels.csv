@@ -1,0 +1,19 @@
+Zone,Channel Name,Power,RX Freq,TX Freq,Color Code,Talk Group,TimeSlot,Call Type,TX Permit
+HI Maui,Hale 91 WW,Turbo,442.85,447.85,1,91_WW,1,Group Call,Same Color Code
+HI Maui,Hale HI State 1,Turbo,442.85,447.85,1,3115_HI State,1,Group Call,Same Color Code
+HI Maui,Hale Maui Cnty 2,Turbo,442.85,447.85,1,31151_HI Maui,2,Group Call,Same Color Code
+HI Maui,Hale PNWR,Turbo,442.85,447.85,1,PNWR,1,Group Call,Same Color Code
+HI Maui,Haleakala Parrot,Turbo,442.85,447.85,1,9990_Parrot,1,Private Call,Same Color Code
+HI Maui,Kaa 91 WW,Turbo,442.5,447.5,1,91_WW,1,Group Call,Same Color Code
+HI Maui,Kaa HI Statewide,Turbo,442.5,447.5,1,3115_HI State,1,Group Call,Same Color Code
+HI Maui,Kaa Maui County,Turbo,442.5,447.5,1,31151_HI Maui,2,Group Call,Same Color Code
+HI Maui,Kaa PNWR,Turbo,442.5,447.5,1,PNWR,1,Group Call,Same Color Code
+HI Maui,Kaa Parrot,Turbo,442.5,447.5,1,9990_Parrot,1,Private Call,Same Color Code
+HI Maui,Lana HI State 1,Turbo,442.075,447.075,1,3115_HI State,1,Group Call,Same Color Code
+HI Maui,Lana Maui Cnty 2,Turbo,442.075,447.075,1,31151_HI Maui,2,Group Call,Same Color Code
+HI Maui,Lanai Parrot,Turbo,442.075,447.075,1,9990_Parrot,1,Private Call,Same Color Code
+HI Maui,Wail Maui Cnty 2,Turbo,442.75,447.75,1,31151_HI Maui,2,Group Call,Same Color Code
+HI Maui,Wailuku 91 WW,Turbo,442.75,447.75,1,91_WW,1,Group Call,Same Color Code
+HI Maui,Wailuku HI State,Turbo,442.75,447.75,1,3115_HI State,1,Group Call,Same Color Code
+HI Maui,Wailuku PNWR,Turbo,442.75,447.75,1,PNWR,1,Group Call,Same Color Code
+HI Maui,Wailuku Parrot,Turbo,442.75,447.75,1,9990_Parrot,1,Private Call,Same Color Code

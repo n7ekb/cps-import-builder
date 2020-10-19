@@ -1,0 +1,5 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+HI Maui,Haleakala 146.94,25K,Turbo,146.94,146.34,Off,110.9,Off
+HI Maui,Haleakala 442.10,25K,Turbo,440.7,445.7,Off,141.3,Off
+HI Maui,Kaanapali 442.00,25K,Turbo,442,447,Off,110.9,Off
+HI Maui,Kaanapali 442.35,25K,Turbo,442.35,447.35,Off,136.5,Off
