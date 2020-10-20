@@ -1,0 +1,7 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+NPS Mt Rainier,Mt Rain CMN1,12.5K,Low,168.6125,168.6125,97.4,Off,On
+NPS Mt Rainier,Mt Rain CMN2,12.5K,Low,163.7125,163.7125,97.4,Off,On
+NPS Mt Rainier,Mt Rain Ops,12.5K,Low,171.775,171.775,Off,Off,On
+NPS Mt Rainier,Mt Rain Park,12.5K,Low,169.725,169.725,Off,Off,On
+NPS Mt Rainier,Mt Rain Air2Grnd,12.5K,Low,168.5,168.5,110.9,Off,On
+NPS Mt Rainier,Mt Rain PortRptr,12.5K,Low,172.45,172.45,173.8,Off,On
