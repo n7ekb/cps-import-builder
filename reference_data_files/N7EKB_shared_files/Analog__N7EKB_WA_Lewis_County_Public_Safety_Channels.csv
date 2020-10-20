@@ -1,5 +1,9 @@
 Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
-Public Safety,Lewis-SO,12.5K,Low,155.6250,155.6250,88.5,Off,On
-Public Safety,RedNet,12.5K,Low,153.83,153.83,Off,Off,On
-Public Safety,LERN,12.5K,Low,155.37,155.37,Off,Off,On
-Public Safety,OSCCR-OnSceneCmd,12.5K,Low,156.135,156.135,Off,Off,On
+Public Safety,Lewis-Fire,12.5K,Low,154.19,154.19,123,Off,On
+Public Safety,Lewis-Fire D12,12.5K,Low,154.9725,154.9725,123,Off,On
+Public Safety,Lewis-Fire D14,12.5K,Low,156.105,156.105,Off,Off,On
+Public Safety,Lewis-Jail,12.5K,Low,155.415,155.415,Off,Off,On
+Public Safety,Lewis-SO,12.5K,Low,155.625,155.625,88.5,Off,On
+Public Safety,Lewis-SO C2C,12.5K,Low,155.1,155.1,131.8,Off,On
+Public Safety,Lewis-SO TAC,12.5K,Low,155.715,155.715,94.8,Off,On
+Public Safety,Centralia PD,12.5K,Low,156.18,156.18,131.8,Off,On
