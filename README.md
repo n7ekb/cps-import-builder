@@ -1,20 +1,19 @@
-# anytone-cps-import-builder
-AnyTone DMR Radio CPS Import File Builder
+# cps-import-builder
+DMR Radio CPS Import File Builder
 
-This Python tool was inspired by K7ABD's Anytone Config Builder
+This project was inspired by K7ABD's Anytone Config Builder
 (https://github.com/K7ABD/anytone-config-builder).  I wanted to make some
 custom tweaks to the original tool but was thwarted by the prospects
 of dealing with Perl - not a language I've ever warmed up to.  So I
-re-invented the wheel and created a Python version here using a Jupyter
-Notebook environment.
+re-invented the wheel and created a Python version.
 
-This initial version generates Channel, Zone, and Talkgroup files
+The current version generates Channel, Zone, and Talkgroup files
 for the Anytone AT-D878UV DMR CPS Software version 1.21.  The tool
-uses input files using K7ABD's original format:  Analog__*.csv,
+uses input files formatted in K7ABD's original format:  Analog__*.csv,
 Digital_Others__*.csv, Digital_Repeaters__*.csv, and Talkgroups__*.csv.
 The script expects the input files to be placed in an "input_data_files"
-directory, and allows multiple individual files of each input file
-type.  This makes it easier to organize the input files into modules.
+directory, and allows multiple files of each input file type.  
+This makes it easier to organize the input files into modules.
 For example Analog__OR_north_repeaters, Analog__WA_west_repeaters, etc.
 
 Unlike the original K7ABD functionality, the channels are all unique -
@@ -33,4 +32,25 @@ Talkgroups__xxx.csv file with a filename that is alphabetically first
 in the list of Talkgroup__*.csv file names you can easily re-map all
 talk groups to use that first file's naming convention.
 
-TODO:  Add script to generate Connect Systems CS800D import files.
+Here is the usage message from the current script:
+
+
+  usage: anytone-cps-import-builder.py [-h] [--inputdir INPUTDIR] 
+       [--outputdir OUTPUTDIR] [--debugmode]
+
+  optional arguments:
+    -h, --help             show this help message and exit
+    --inputdir INPUTDIR    Directory containing input files
+    --outputdir OUTPUTDIR  Target directory for output files
+    --debugmode            Set debug flag for troubleshooting
+
+The default input directory is "./input_data_files" and the default
+output directory is "./output_files".  I've provided an initial set
+of channel definition files and Zone_Order.csv file in the 
+"reference_data_files" directory.  You can copy all of these files
+to the "input_data_files" directory and run the script to build a 
+sample set of import files.  The resulting code plug is close to 
+what I use in my Anytone 878 here in the Rainier area (Thurston 
+Couny, WA).  Feel free to submit your own "Callsign_shared_files" 
+directory for inclusion in this project repository. 
+
