@@ -1,29 +1,29 @@
 Zone,Channel Name,Power,RX Freq,TX Freq,Color Code,Talk Group,TimeSlot,Call Type,TX Permit
 FL Tampa,Drew Disconnect,Turbo,442.6125,447.6125,15,4000_Disconn,1,Group Call,Same Color Code
 FL Tampa,Drew FL State,Turbo,442.6125,447.6125,15,3112_FL State,2,Group Call,Same Color Code
-FL Tampa,Drew Local 9,Turbo,442.6125,447.6125,15,9_Local/Ref,2,Group Call,Same Color Code
+FL Tampa,Drew Local 9,Turbo,442.6125,447.6125,15,TG 9,2,Group Call,Same Color Code
 FL Tampa,Drew PNWR,Turbo,442.6125,447.6125,15,PNWR,1,Group Call,Same Color Code
 FL Tampa,Drew Parrot,Turbo,442.6125,447.6125,15,9990_Parrot,1,Private Call,Same Color Code
 FL Tampa,Drew WW 91,Turbo,442.6125,447.6125,15,91_WW,1,Group Call,Same Color Code
 FL Tampa,StP FL Statewide,Turbo,444.9625,449.9625,1,3112_FL State,2,Group Call,Same Color Code
-FL Tampa,StP Local 9,Turbo,444.9625,449.9625,1,9_Local/Ref,2,Group Call,Same Color Code
+FL Tampa,StP Local 9,Turbo,444.9625,449.9625,1,TG 9,2,Group Call,Same Color Code
 FL Tampa,StP NA,Turbo,444.9625,449.9625,1,3_NA,1,Group Call,Same Color Code
 FL Tampa,StP Parrot,Turbo,444.9625,449.9625,1,Parrot,1,Group Call,Same Color Code
 FL Tampa,StP TAC-310,Turbo,444.9625,449.9625,1,TAC 310,1,Group Call,Same Color Code
-FL Tampa,StP TAC-311,Turbo,444.9625,449.9625,1,TAC-311,1,Group Call,Same Color Code
-FL Tampa,StP USA-wide,Turbo,444.9625,449.9625,1,3100_USA-wide,1,Group Call,Same Color Code
+FL Tampa,StP TAC-311,Turbo,444.9625,449.9625,1,TAC 311,1,Group Call,Same Color Code
+FL Tampa,StP USA-wide,Turbo,444.9625,449.9625,1,USA-wide,1,Group Call,Same Color Code
 FL Tampa,StP WCF,Turbo,444.9625,449.9625,1,2_Europe/Loc,2,Group Call,Same Color Code
-FL Tampa,StP WW English,Turbo,444.9625,449.9625,1,13_WW English,1,Group Call,Same Color Code
+FL Tampa,StP WW English,Turbo,444.9625,449.9625,1,WW English,1,Group Call,Same Color Code
 FL Tampa,TPA FL Statewide,Turbo,442.6,447.6,1,3112_FL State,2,Group Call,Same Color Code
-FL Tampa,TPA Local 9,Turbo,442.6,447.6,1,9_Local/Ref,2,Group Call,Same Color Code
+FL Tampa,TPA Local 9,Turbo,442.6,447.6,1,TG 9,2,Group Call,Same Color Code
 FL Tampa,TPA NA,Turbo,442.6,447.6,1,3_NA,1,Group Call,Same Color Code
 FL Tampa,TPA Parrot,Turbo,442.6,447.6,1,Parrot,1,Group Call,Same Color Code
 FL Tampa,TPA TAC-310,Turbo,442.6,447.6,1,TAC 310,1,Group Call,Same Color Code
-FL Tampa,TPA TAC-311,Turbo,442.6,447.6,1,TAC-311,1,Group Call,Same Color Code
-FL Tampa,TPA USA-wide,Turbo,442.6,447.6,1,3100_USA-wide,1,Group Call,Same Color Code
+FL Tampa,TPA TAC-311,Turbo,442.6,447.6,1,TAC 311,1,Group Call,Same Color Code
+FL Tampa,TPA USA-wide,Turbo,442.6,447.6,1,USA-wide,1,Group Call,Same Color Code
 FL Tampa,TPA WCF,Turbo,442.6,447.6,1,2_Europe/Loc,2,Group Call,Same Color Code
-FL Tampa,TPA WW English,Turbo,442.6,447.6,1,13_WW English,1,Group Call,Same Color Code
+FL Tampa,TPA WW English,Turbo,442.6,447.6,1,WW English,1,Group Call,Same Color Code
 FL Tampa,W4CLL Local 2,Turbo,145.41,144.81,5,2_Europe/Loc,2,Group Call,Same Color Code
-FL Tampa,W4CLL Local 9,Turbo,145.41,144.81,5,9_Local/Ref,2,Group Call,Same Color Code
+FL Tampa,W4CLL Local 9,Turbo,145.41,144.81,5,TG 9,2,Group Call,Same Color Code
 FL Tampa,W4CLL NA 3,Turbo,145.41,144.81,5,3_NA,1,Group Call,Same Color Code
 FL Tampa,W4CLL Parrot,Turbo,145.41,144.81,5,Parrot,2,Group Call,Same Color Code
