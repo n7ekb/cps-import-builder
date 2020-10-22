@@ -1,10 +1,15 @@
-# ignore the output files
-channels_*.csv
-file_list_*.LST
-receive_groups_*.csv
-scan_lists_*.csv
-talk_groups_*.csv
-zones_*.csv
+# ignore input files
+input_data_files/Analog__*
+input_data_files/Digital-Others__*
+input_data_files/Digital-Repeaters__*
+input_data_files/Talkgroups__*
+input_data_files/Zone_Order.csv
 
-# ignore Jupyter Notebook checkpoints directory
-.ipynb_checkpoints/
+# ignore output files
+output_files/channels_*.csv
+output_files/file_list_*.LST
+output_files/receive_groups_*.csv
+output_files/scan_lists_*.csv
+output_files/talk_groups_*.csv
+output_files/zones_*.csv
+
