@@ -1,17 +1,17 @@
 Zone,Channel Name,Power,RX Freq,TX Freq,Color Code,Talk Group,TimeSlot,Call Type,TX Permit
-AZ Ft Huachuca,Mt Lmn 3100,Turbo,445.8750,440.8750,1,3100_USA-wide,2,Group Call,Same Color Code
-AZ Ft Huachuca,Mt Lmn English,Turbo,445.8750,440.8750,1,13_WW English,1,Group Call,Same Color Code
+AZ Ft Huachuca,Mt Lmn 3100,Turbo,445.8750,440.8750,1,USA-wide,2,Group Call,Same Color Code
+AZ Ft Huachuca,Mt Lmn English,Turbo,445.8750,440.8750,1,WW English,1,Group Call,Same Color Code
 AZ Ft Huachuca,Mt Lmn Europe,Turbo,445.8750,440.8750,1,2_Europe/Loc,2,Group Call,Same Color Code
 AZ Ft Huachuca,Mt Lmn NA,Turbo,445.8750,440.8750,1,3_NA,1,Group Call,Same Color Code
 AZ Ft Huachuca,Mt Lmn SW PTT,Turbo,445.8750,440.8750,1,3176_Southwest,2,Group Call,Same Color Code
 AZ Ft Huachuca,Mt Lmn TAC310,Turbo,445.8750,440.8750,1,TAC 310,2,Group Call,Same Color Code
 AZ Ft Huachuca,MtLmn WW,Turbo,445.8750,440.8750,1,1_WW,1,Group Call,Same Color Code
-AZ Ft Huachuca,Mule 3100 PTT,Turbo,445.85,440.85,1,3100_USA-wide,2,Group Call,Same Color Code
-AZ Ft Huachuca,Mule English FT,Turbo,445.85,440.85,1,13_WW English,1,Group Call,Same Color Code
+AZ Ft Huachuca,Mule 3100 PTT,Turbo,445.85,440.85,1,USA-wide,2,Group Call,Same Color Code
+AZ Ft Huachuca,Mule English FT,Turbo,445.85,440.85,1,WW English,1,Group Call,Same Color Code
 AZ Ft Huachuca,Mule Europe FT,Turbo,445.85,440.85,1,2_Europe/Loc,2,Group Call,Same Color Code
 AZ Ft Huachuca,Mule NA PTT,Turbo,445.85,440.85,1,3_NA,1,Group Call,Same Color Code
 AZ Ft Huachuca,Mule SW PTT,Turbo,445.85,440.85,1,3176_Southwest,2,Group Call,Same Color Code
 AZ Ft Huachuca,Mule TAC310 PTT,Turbo,445.85,440.85,1,TAC 310,2,Group Call,Same Color Code
 AZ Ft Huachuca,Mule WW PTT,Turbo,445.85,440.85,1,1_WW,1,Group Call,Same Color Code
-AZ Ft Huachuca,Usery Mt English,Turbo,446.35,441.35,1,13_WW English,1,Group Call,Same Color Code
+AZ Ft Huachuca,Usery Mt English,Turbo,446.35,441.35,1,WW English,1,Group Call,Same Color Code
 AZ Ft Huachuca,Usery Mt TAC310,Turbo,446.35,441.35,1,TAC 310,2,Group Call,Same Color Code
