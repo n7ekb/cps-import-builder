@@ -243,6 +243,46 @@ def cs800d_write_channels_export(channels_dict, channels_export_file, debug=Fals
 
 
 
+def cs800d_write_talk_groups_export(talk_groups_dict,talk_groups_export_file, debug=False):
+    """This function writes out a Connect Systems CS800D formatted talk groups import file."""
+
+    # Create a dataframe from the talk groups dict and output it...
+    header_row = ['No','Call Alias','Call Type','Call ID','Receive Tone']
+    talk_groups_out_list = []
+    cnt = 1
+    for tg_id in sorted(talk_groups_dict.keys()):
+        row_list = []
+        #row_list.append(str(cnt))
+        row_list.append(cnt)
+        cnt = cnt + 1
+        tg_name = talk_groups_dict[tg_id][0]
+        if len(tg_name) > 16:
+            print("WARNING:  TG Name '{}' > 16, truncating to '{}'".format(tg_name,tg_name[:16]))
+        row_list.append(tg_name[:16])
+        tg_call_type = talk_groups_dict[tg_id][1]
+        row_list.append(tg_call_type)
+        row_list.append(tg_id)
+        tg_call_alert = talk_groups_dict[tg_id][2]
+        if tg_call_alert == "None":
+            tg_call_alert = "No"
+        else:
+            tg_call_alert = "Yes"
+        row_list.append(tg_call_alert)
+        talk_groups_out_list.append(row_list)
+    talk_groups_out_df = pandas.DataFrame(talk_groups_out_list, columns=header_row)
+
+    if debug:
+        print("Writing output to: ", talkgroups_export_file)
+        
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    writer = pandas.ExcelWriter(talk_groups_export_file, engine='xlsxwriter')
+    talk_groups_out_df.to_excel(writer, sheet_name="DMR_Contacts", index=False)
+    writer.save()
+    
+    return
+
+
+
 def read_zone_order_file(file_path, debug=False):
     """This function reads the Zone_Order.csv file and builds the zones_order_list."""
    
@@ -913,7 +953,7 @@ def main():
 
 
    # define our export files 
-   talk_groups_output_filename = 'talk_groups_{}.csv'.format(isodate)
+   talk_groups_output_filename = 'talk_groups_{}.xlsx'.format(isodate)
    talk_groups_output_file = os.path.join(outputs_dir, 
                                           talk_groups_output_filename)
    channels_output_filename = 'channels_{}.xlsx'.format(isodate)
@@ -978,7 +1018,7 @@ def main():
 
 
    # write our in-memory representation to Anytone 878 export files for import back into CPS...
-   #cs800d_write_talk_groups_export(tg_by_num_dict, talk_groups_output_file, debug=False)
+   cs800d_write_talk_groups_export(tg_by_num_dict, talk_groups_output_file, debug=False)
    cs800d_write_channels_export(channels_dict, channels_output_file, debug=False)
 
 
