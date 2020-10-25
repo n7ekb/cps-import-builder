@@ -16,127 +16,250 @@ import os
 import time
 import glob
 import argparse
- 
+
+#
+# CS800D Export File format - Analog Tab Columns
+#
+# Col   Header Name         Comments/Default
+#   0   No
+#   1   Channel Alias
+#   2   Squelch Level       (Normal)
+#   3   Channel Band[KHz]   (12.5)  12.5/25
+#   4   Personality List    (Personality 1)   
+#   5   Scan List           (None)
+#   6   Auto Scan Start     (Off)
+#   7   Rx Only             (Off)
+#   8   Talk Around         (Off)
+#   9   Lone Worker         (Off)
+#  10   VOX                 (Off)
+#  11   Scrambler           (Off)
+#  12   Emp De-emp          (Off)
+#  13   Receive Frequency   
+#  14   RX CTCSS/CDCSS Type (NONE/CTCSS/CDCSS)
+#  15   CTCSS/CDCSS         (tone value - number val only for DCS)
+#  16   RX Ref Frequency    (Middle) Low/Middle/High
+#  17   Rx Squelch Mode     (CTCSS/DCS and Audio)
+#  18   Monitor Squelch Mode            (Carrier)
+#  19   Channel Switch Squelch Mode     (RX Squelch Mode)
+#  20   Transmit Frequency  
+#  21   TX CTCSS/CDCSS Type (NONE/CTCSS/CDCSS)
+#  22   CTCSS/CDCSS         (tone value - number val only for DCS)
+#  23   TX Ref Frequency    (Middle)  Low/Middle/High
+#  24   Power Level         (Low) Low/High
+#  25   Tx Admit            (Aways Allow) Note misspelling
+#  26   Reverse Burst/Turn off code     (Off)
+#  27   TX Time-out Time[s] (60)
+#  28   TOT Re-key Time[s]  (0)
+#  29   TOT Pre-Alert Time[s]           (0)
+#  30   CTCSS Tail Revert Option        (180)
+#
+#
+# CS800D Export File format - Digital Tab Columns
+#
+# Col   Header Name         Comments/(Default)
+#   0   No
+#   1   Channel Alias       
+#   2   Digital ID          Radio/DMR ID - can be different per channel
+#   3   Color Code          1-14
+#   4   Time Slot           (Slot 1)  Slot 1/Slot 2
+#   5   Scan List           (None)
+#   6   Auto Scan Start     (Off)
+#   7   Rx Only             (Off)  Off/On
+#   8   Talk Around         (Off)
+#   9   Lone Worker         (Off)
+#  10   VOX                 (Off)
+#  11   Receive Frequency   
+#  12   RX Ref Frequency    (Middle) Low/Middle/High
+#  13   RX Group List       (None) 
+#  14   Emergency Alarm Indication      (Off)
+#  15   Emergency Alarm Ack             (Off)
+#  16   Emergency Call Indication       (Off)
+#  17   Transmit Frequency
+#  18   TX Ref Frequency    (Middle) Low/Middle/High
+#  19   TX Contact          TG Name
+#  20   Emergency System    (None)
+#  21   Power Level         (High)    Low/Middle/High
+#  22   TX Admit            (Always)  Always/Color Code Free
+#  23   TX Time-out Time[s] (60)
+#  24   TOT Re-key Time[s]  (0)
+#  25   TOT Pre-Alert Time[s]           (0)
+#  26   Private Call Confirmed          (Off)
+#  27   Data Call Confirmed             (Off)
+#  28   Encrypt             (Off)
+#
+#
+#  Our internal channel dictionary contains a set of channel
+#  attributes which are in stored in a dictionary for that
+#  channel. Here are the keys available in the attribute dict:
+#
+#  Key          Comments 
+#  'Ch Type'        Analog or Digital 
+#  'RX Freq'        Receive frequency of the channel
+#  'TX Freq'        Transmit frequency of the channel
+#  'Power'          Power level to operate at Low,Medium,High,Turbo
+#                   (Turbo & High are equivalent when not supported)
+#  'Bandwidth'      Channel bandwidth 12.5 or 25 
+#  'CTCSS Decode'   Rx tone decode value
+#  'CTCSS Encode'   Tx tone encode value
+#  'RX Only'        Make channel receive only if set to "On"
+#
+#  Additional attributes for a digital channel:
+#
+#  Key
+#  'Color Code'
+#  'Talk Group'
+#  'Time Slot'
+#  'Call Type'      Group/Private
+#  'TX Permit'      Always, Color Code Free
 
 
 # global lists of all CTCSS values
-ctcss_list = ['67','69.4','71.9','74.4','77','79.7','82.5','85.4','88.5','91.5',
-              '94.8','97.4','100','103.5','107.2','110.9','114.8','118.8','123',
-              '127.3','131.8','136.5','141.3','146.2','150']
+ctcss_list = ['67','67.0','69.4','71.9','74.4','77','79.7','82.5','85.4',
+              '88.5','91.5','94.8','97.4','100','100.0','103.5','107.2',
+              '110.9','114.8','118.8','123','123.0','127.3','131.8','136.5',
+              '141.3','146.2','150','150.0','151.4','156.7','159.8',
+              '162.2','165.5','167.9','171.3','173.8','177.3','179.9',
+              '183.5','186.2','189.9','192.8','196.6','199.5','203.5',
+              '206.5','210.7','218.1','225.7','229.1','233.6','241.8',
+              '250.3','254.1']
 
-cdcss_list = ['D023N','D025N','D026N','D031N','D032N','D043N','D047N','D051N','D054N',
-              'D065N','D071N','D072N','D073N','D074N','D114N','D115N','D116N','D125N',
-              'D131N','D132N','D134N','D143N','D152N','D155N','D156N','D162N','D165N',
-              'D172N','D174N','D205N','D223N','D226N','D243N','D244N','D245N','D251N',
-              'D261N','D263N','D265N','D271N','D306N','D311N','D315N','D331N','D343N',
-              'D346N','D351N','D364N','D365N','D371N','D411N','D412N','D413N','D423N',
-              'D431N','D432N','D445N','D464N','D465N','D466N','D503N','D506N','D516N',
-              'D532N','D546N','D565N','D606N','D612N','D624N','D627N','D631N','D632N',
-              'D654N','D662N','D664N','D703N','D712N','D723N','D731N','D732N','D734N',
-              'D743N','D754N']
+cdcss_list = ['D023N','D025N','D026N','D031N','D032N','D043N','D047N','D051N',
+              'D054N','D065N','D071N','D072N','D073N','D074N','D114N','D115N',
+              'D116N','D125N','D131N','D132N','D134N','D143N','D152N','D155N',
+              'D156N','D162N','D165N','D172N','D174N','D205N','D223N','D226N',
+              'D243N','D244N','D245N','D251N','D261N','D263N','D265N','D271N',
+              'D306N','D311N','D315N','D331N','D343N','D346N','D351N','D364N',
+              'D365N','D371N','D411N','D412N','D413N','D423N','D431N','D432N',
+              'D445N','D464N','D465N','D466N','D503N','D506N','D516N','D532N',
+              'D546N','D565N','D606N','D612N','D624N','D627N','D631N','D632N',
+              'D654N','D662N','D664N','D703N','D712N','D723N','D731N','D732N',
+              'D734N','D743N','D754N']
 
 
 
-def cs800d_write_channels_export(channels_dict, channels_export_file, debug=False):
+def cs800d_write_channels_export(channels_dict, channels_export_file, 
+        debug=False):
     """This function writes out a CS800D CPS formatted channels file"""
 
-    analog_header_row = ['No','Channel Alias','Squelch Level', 'Channel Band[KHz]',
-                         'Personality List','Scan List','Auto Scan Start','Rx Only',
-                         'Talk Around', 'Lone Worker', 'VOX', 'Scrambler', 'Emp De-emp',
-                         'Receive Frequency', 'RX CTCSS/CDCSS Type', 'CTCSS/CDCSS', 
-                         'RX Ref Frequency', 'Rx Group List', 'Rx Squelch Mode', 
+    analog_header_row = ['No','Channel Alias','Squelch Level', 
+                         'Channel Band[KHz]','Personality List','Scan List',
+                         'Auto Scan Start','Rx Only','Talk Around', 
+                         'Lone Worker','VOX','Scrambler','Emp De-emp', 
+                         'Receive Frequency', 
+                         'RX CTCSS/CDCSS Type','CTCSS/CDCSS', 
+                         'RX Ref Frequency','Rx Squelch Mode', 
                          'Monitor Squelch Mode',
                          'Channel Switch Squelch Mode',
-                         'Transmit Frequency', 'TX CTCSS/CDCSS Type', 'CTCSS/CDCSS',
-                         'TX Ref Frequency', 'Power Level', 'Tx Admit', 
+                         'Transmit Frequency',
+                         'TX CTCSS/CDCSS Type','CTCSS/CDCSS',
+                         'TX Ref Frequency','Power Level','Tx Admit', 
                          'Reverse Burst/Turn off code',
-                         'TX Time-out Time[s]', 'TOT Re-key Time[s]', 'TOT Pre-Alert Time[s]',
+                         'TX Time-out Time[s]','TOT Re-key Time[s]',
+                         'TOT Pre-Alert Time[s]',
                          'CTCSS Tail Revert Option']
+
     digital_header_row = ['No','Channel Alias','Digital Id', 'Color Code',
                          'Time Slot','Scan List','Auto Scan Start','Rx Only',
                          'Talk Around', 'Lone Worker', 'VOX',
                          'Receive Frequency',
-                         'RX Ref Frequency', 'RX Group List', 'Emergency Alarm Indication',
-                         'Emergency Alarm Ack', 'Emergency Call Indication', 
-                         'Transmit Frequency', 'TX Ref Frequency', 'TX Contact', 
-                         'Emergency System',
-                         'Power Level', 'Tx Admit',
-                         'TX Time-out Time[s]', 'TOT Re-key Time[s]', 'TOT Pre-Alert Time[s]',
-                         'Private Call Confirmed', 'Data Call Confirmed', 'Encrypt']
+                         'RX Ref Frequency', 'RX Group List', 
+                         'Emergency Alarm Indication',
+                         'Emergency Alarm Ack','Emergency Call Indication', 
+                         'Transmit Frequency',
+                         'TX Ref Frequency','TX Contact', 
+                         'Emergency System', 'Power Level','Tx Admit',
+                         'TX Time-out Time[s]','TOT Re-key Time[s]',
+                         'TOT Pre-Alert Time[s]','Private Call Confirmed',
+                         'Data Call Confirmed','Encrypt']
     
     # setup analog channels dataframe
     analog_channels_out_list = []
     cnt = 1
-    for channel_alias in channels_dict.keys():
-        channel_data = channels_dict[channel_alias]
-        channel_type = channel_data[2]
+    for ch_name in sorted(channels_dict.keys()):
+        ch_type = channels_dict[ch_name]['Ch Type']
         
         # skip non-analog channels
-        if channel_type != 'A-Analog':
+        if ch_type != 'Analog':
             continue
+
+        # get channel attributes dictionary
+        attr_dict = channels_dict[ch_name]
+        
         # now fill out this row in correct order for cs800d
         row_list = []
         row_list.append(str(cnt))
         cnt = cnt + 1
-        row_list.append(channel_alias)
-        row_list.append("Normal")         # Squelch level
-        row_list.append(channel_data[4])  # Channel Bandwidth
-        row_list.append("Personality 1")  # Personality
-        row_list.append(channel_data[19]) # scan list
-        row_list.append("Off")            # auto scan start
-        row_list.append(channel_data[21]) # Rx Only
-        row_list.append(channel_data[28]) # Talk around
-        row_list.append(channel_data[29]) # Lone Worker
-        row_list.append("Off")            # VOX
-        row_list.append("Off")            # Scrambler
-        row_list.append("Off")            # Emp De-emp
-        row_list.append(channel_data[0])  # Receive Frequency
+        row_list.append(ch_name)                    # Channel Alias
+        row_list.append("Normal")                   # Squelch level
+        row_list.append(attr_dict['Bandwidth'])     # Channel Bandwidth
+        row_list.append("Personality 1")            # Personality
+        row_list.append("None")                     # scan list
+        row_list.append("Off")                      # auto scan start
+        row_list.append(attr_dict['RX Only'])       # Rx Only
+        row_list.append("Off")                      # Talk around
+        row_list.append("Off")                      # Lone Worker
+        row_list.append("Off")                      # VOX
+        row_list.append("Off")                      # Scrambler
+        row_list.append("Off")                      # Emp De-emp
+        row_list.append(attr_dict['RX Freq'])       # Receive Frequency
         
-        # RX CTCSS/CDCSS Type
-        ctcss_dcs_decode_val = channel_data[5]
+        # RX CTCSS/CDCSS Type & set rx_squelch_mode
+        ctcss_dcs_decode_val = str(attr_dict['CTCSS Decode'])
         if ctcss_dcs_decode_val == "Off":
             row_list.append("NONE")
             row_list.append("NONE")
             rx_squelch_mode = "CTCSS/DCS and Audio"
         elif ctcss_dcs_decode_val in ctcss_list:
             row_list.append("CTCSS")
-            row_list.append(ctcss_dcs_decode_val)
+            row_list.append(float(ctcss_dcs_decode_val))
             rx_squelch_mode = "CTCSS/DCS and Audio"
         elif ctcss_dcs_decode_val in cdcss_list:
             row_list.append("CDCSS")
             row_list.append(ctcss_dcs_decode_val[1:4])
             rx_squelch_mode = "CTCSS/DCS and Audio"
-            
-        if float(channel_data[0]) > 180.0:
-            row_list.append("Low")        # RX Ref Frequency (VHF/2 meters)
         else:
-            row_list.append("Low")        # RX Ref Frequency (UHF/70cm )
-        row_list.append(rx_squelch_mode)  # Rx squelch mode
-        row_list.append("Carrier")        # Monitor squelch mode
+            # we should never get here!
+            print("ERROR:  Invalid ctcss_dcs_decode_val '{}'".format(
+                ctcss_dcs_decode_val))
+            sys.exit(-1)
+           
+        # Compute RX Ref Frequency
+        if float(attr_dict['RX Freq']) > 180.0:
+            row_list.append("Low")  # RX Ref Frequency (VHF/2 meters)
+        else:
+            row_list.append("Low")  # RX Ref Frequency (UHF/70cm )
+
+        row_list.append(rx_squelch_mode)    # Rx squelch mode
+        row_list.append("Carrier")          # Monitor squelch mode
         row_list.append("RX Squelch Mode")  # Channel switch squelch mode
         
-        row_list.append(channel_data[1])  # Transmit Frequency
+        row_list.append(attr_dict['TX Freq'])       # Transmit Frequency
         
         # TX CTCSS/CDCSS Type
-        ctcss_dcs_encode_val = channel_data[6]
+        ctcss_dcs_encode_val = str(attr_dict['CTCSS Encode'])
         if ctcss_dcs_encode_val == "Off":
             row_list.append("NONE")
             row_list.append("NONE")
         elif ctcss_dcs_encode_val in ctcss_list:
             row_list.append("CTCSS")
-            row_list.append(ctcss_dcs_encode_val)
+            row_list.append(float(ctcss_dcs_encode_val))
         elif ctcss_dcs_encode_val in cdcss_list:
             row_list.append("CDCSS")
             row_list.append(ctcss_dcs_encode_val[1:4])
-            
-        row_list.append(channel_data[1])  # Transmit Frequency
-        if float(channel_data[1]) > 180.0:
+        else:
+            # we should never get here!
+            print("ERROR:  Invalid ctcss_dcs_encode_val '{}'".format(
+                ctcss_dcs_encode_val))
+            sys.exit(-1)
+        
+        # Compute TX Ref Frequency
+        if float(attr_dict['TX Freq']) > 180.0:
             row_list.append("Middle")     # TX Ref Frequency (VHF/2 meters)
         else:
             row_list.append("Low")        # TX Ref Frequency (UHF/70cm )
             
         # Power level
-        power_level = channel_data[3]
+        power_level = attr_dict['Power']
         if power_level in ['Turbo','High']:
             row_list.append("High")
         else:
@@ -155,87 +278,99 @@ def cs800d_write_channels_export(channels_dict, channels_export_file, debug=Fals
     analog_channels_out_df = pandas.DataFrame(analog_channels_out_list, 
                                               columns=analog_header_row)
     
-    
     # setup digital channels dataframe
     digital_channels_out_list = []
     cnt = 1
-    for channel_alias in channels_dict.keys():
-        channel_data = channels_dict[channel_alias]
-        channel_type = channel_data[2]
+    for ch_name in sorted(channels_dict.keys()):
+        ch_type = channels_dict[ch_name]['Ch Type']
         
-        # skip non-analog channels
-        if channel_type != 'D-Digital':
+        # skip analog channels
+        if ch_type != 'Digital':
             continue
+
+        # get channel attributes dictionary
+        attr_dict = channels_dict[ch_name]
+        
         # now fill out this row in correct order for cs800d
         row_list = []
         row_list.append(str(cnt))
         cnt = cnt + 1
-        row_list.append(channel_alias)
-        row_list.append("0")              # Digital ID
-        row_list.append(channel_data[17]) # Color Code
-        row_list.append(channel_data[18]) # Time Slot
-        row_list.append(channel_data[19]) # Scan List
-        row_list.append("Off")            # Auto Scan Start
-        row_list.append(channel_data[21]) # Rx Only
-        row_list.append(channel_data[28]) # Talk around
-        row_list.append(channel_data[29]) # Lone Worker
-        row_list.append("Off")            # VOX
-        row_list.append(channel_data[0])  # Receive Frequency
-        if float(channel_data[0]) > 180.0:
-            row_list.append("Middle")     # RX Ref Frequency (VHF/2 meters)
+        row_list.append(ch_name)            # Channel Alias
+        row_list.append("0")                # Digital ID
+        row_list.append(attr_dict['Color Code'])    # Color Code
+        if str(attr_dict['Time Slot']) == '1':      # Time Slot
+            row_list.append("Slot 1")
         else:
-            row_list.append("Middle")     # RX Ref Frequency (UHF/70cm )
-        row_list.append(channel_data[20]) # RX Receive Group
-        row_list.append("Off")            # Emergency Alarm Indication
-        row_list.append("Off")            # Emergency Alarm Ack
-        row_list.append("Off")            # Emergency Call Indication
-        row_list.append(channel_data[1])  # Transmit Frequency
-        if float(channel_data[1]) > 180.0:
-            row_list.append("Middle")     # TX Ref Frequency (VHF/2 meters)
+            row_list.append("Slot 2")
+        row_list.append("None")             # Scan List
+        row_list.append("Off")              # Auto Scan Start
+        row_list.append(attr_dict['RX Only'])       # Rx Only
+        row_list.append("Off")              # Talk around
+        row_list.append("Off")              # Lone Worker
+        row_list.append("Off")              # VOX
+        row_list.append(attr_dict['RX Freq'])       # Receive Frequency
+
+        # compute RX Ref Frequency
+        if float(attr_dict['RX Freq']) > 180.0:
+            row_list.append("Middle")   # RX Ref Frequency (VHF/2 meters)
         else:
-            row_list.append("Middle")     # TX Ref Frequency (UHF/70cm )
-        row_list.append(channel_data[7])  # TX Contact
-        row_list.append("None")           # Emergency System
+            row_list.append("Middle")   # RX Ref Frequency (UHF/70cm )
+
+        row_list.append("None")             # RX Receive Group
+        row_list.append("Off")              # Emergency Alarm Indication
+        row_list.append("Off")              # Emergency Alarm Ack
+        row_list.append("Off")              # Emergency Call Indication
+        row_list.append(attr_dict['TX Freq'])       # Transmit Frequency
+
+        # compute TX Ref Frequency
+        if float(attr_dict['TX Freq']) > 180.0:
+            row_list.append("Middle")   # TX Ref Frequency (VHF/2 meters)
+        else:
+            row_list.append("Middle")   # TX Ref Frequency (UHF/70cm )
+
+        row_list.append(attr_dict['Talk Group'])  # TX Contact
+        row_list.append("None")             # Emergency System
         
         # Power level
-        power_level = channel_data[3]
+        power_level = attr_dict['Power']
         if power_level in ['Turbo','High']:
             row_list.append("High")
         else:
-            row_list.append("Low")
+            row_list.append(power_level)
         
         # TX Admit (admit criteria)
-        admit_criteria = channel_data[20]
-        if admit_criteria == "Always":
-            row_list.append("Always")
-        elif admit_criteria in ['ChannelFree','Different Color Code']:
-            row_list.append("Channel Idle")
-        elif admit_criteria == "Same Color Code":
-            row_list.append("Color Code Free")
-        row_list.append(channel_data[20]) # TX Admit
+        dict_admit_criteria = attr_dict['TX Permit']
+        admit_criteria = "ERROR!"  # just in case...
+        if dict_admit_criteria == "Always":
+            admit_criteria = "Always"
+        elif dict_admit_criteria in ['ChannelFree','Different Color Code']:
+            admit_criteria = "Channel Idle"
+        elif dict_admit_criteria == "Same Color Code":
+            admit_criteria = "Color Code Free"
+        row_list.append(admit_criteria)     # TX Admit
 
-        row_list.append("180")            # TX Time-out Time[s]
-        row_list.append("0")              # TOT Re-key Time[s]
-        row_list.append("10")             # TOT Pre-Alert Time[s]
-        row_list.append("Off")            # Private Call Confirmed
-        row_list.append("Off")            # Data Call Confirmed
-        row_list.append("Off")            # Encrypt
+        row_list.append("180")              # TX Time-out Time[s]
+        row_list.append("0")                # TOT Re-key Time[s]
+        row_list.append("10")               # TOT Pre-Alert Time[s]
+        row_list.append("Off")              # Private Call Confirmed
+        row_list.append("Off")              # Data Call Confirmed
+        row_list.append("Off")              # Encrypt
         
         # now add the row for this channel to our digital channels list
         digital_channels_out_list.append(row_list)
         
-    # create the analog channels data frame   
+    # create the digital channels data frame   
     digital_channels_out_df = pandas.DataFrame(digital_channels_out_list, 
                                                columns=digital_header_row)
     
-
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
     if debug:
         print("Writing output to: ", channels_export_file)
-        
-    # Create a Pandas Excel writer using XlsxWriter as the engine.
     writer = pandas.ExcelWriter(channels_export_file, engine='xlsxwriter')
-    analog_channels_out_df.to_excel(writer, sheet_name="Analog Channel", index=False)
-    digital_channels_out_df.to_excel(writer, sheet_name="Digital Channel", index=False)
+    analog_channels_out_df.to_excel(writer, 
+        sheet_name="Analog Channel", index=False)
+    digital_channels_out_df.to_excel(writer, 
+        sheet_name="Digital Channel", index=False)
     
     writer.save()
     
@@ -306,15 +441,17 @@ def read_zone_order_file(file_path, debug=False):
 
 
 
-def add_channel_to_zone(zone_name, channel_name, zones_dict, channels_dict, debug=False):
+def add_channel_to_zone(zone_name, channel_name, zones_dict, 
+        channels_dict, debug=False):
     """This function adds a channel to our zone dictionary."""   
     
     # get the channel's rx & tx frequencies
-    channel_rx_freq = str(channels_dict[channel_name][0])
-    channel_tx_freq = str(channels_dict[channel_name][1])
+    channel_rx_freq = str(channels_dict[channel_name]['RX Freq'])
+    channel_tx_freq = str(channels_dict[channel_name]['TX Freq'])
     
     if zone_name in zones_dict.keys():
-        # zone already created, just append channel, rx freq, & tx freq to lists
+        # zone already created, just append channel, 
+        # rx freq, & tx freq to lists
         zone_member_list = zones_dict[zone_name][0]
         zone_member_list.append(channel_name)
         zone_member_rx_list = zones_dict[zone_name][1]
@@ -322,75 +459,14 @@ def add_channel_to_zone(zone_name, channel_name, zones_dict, channels_dict, debu
         zone_member_tx_list = zones_dict[zone_name][2]
         zone_member_tx_list.append(channel_tx_freq)
         if debug:
-            print("Zone '{}' updated with '{}'.".format(zone_name, channel_name))
-            print("    zone_dict[{}] = {}".format(zone_name, zones_dict[zone_name]))
+            print("Zone '{}' updated with '{}'.".format(
+                zone_name, channel_name))
+            print("    zone_dict[{}] = {}".format(
+                zone_name, zones_dict[zone_name]))
     else:
         # new zone, so create it
-        zones_dict.update({zone_name:[[channel_name],[channel_rx_freq],[channel_tx_freq]]})
-        
-    return
-
-
-
-def add_channel_to_zone_scanlist(zone_name, channel_name, zones_dict, channels_dict, 
-                                 scan_lists_dict, debug=False):
-    """This function adds a channel to a scanlist for the zone."""   
-    
-    # These are scan list column headings for CPS 1.21:
-    #
-    # "No.","Scan List Name","Scan Channel Member","Scan Channel Member RX Frequency",
-    # "Scan Channel Member TX Frequency","Scan Mode","Priority Channel Select",
-    # "Priority Channel 1","Priority Channel 1 RX Frequency","Priority Channel 1 TX Frequency",
-    # "Priority Channel 2","Priority Channel 2 RX Frequency","Priority Channel 2 TX Frequency",
-    # "Revert Channel","Look Back Time A[s]","Look Back Time B[s]","Dropout Delay Time[s]",
-    # "Dwell Time[s]"
-    
-    # get the channel's rx & tx frequencies
-    channel_rx_freq = str(channels_dict[channel_name][0])
-    channel_tx_freq = str(channels_dict[channel_name][1])
-    
-    # set fixed item values
-    scan_mode = "Off"
-    priority_ch_select = "Off"
-    priority_ch_1 = "Off"
-    priority_ch_1_rx_freq = ""
-    priority_ch_1_tx_freq = ""
-    priority_ch_2 = "Off"
-    priority_ch_2_rx_freq = ""
-    priority_ch_2_tx_freq = ""
-    revert_ch = "Selected"
-    loop_back_time_a = "2.0"
-    loop_back_time_b = "3.0"
-    drop_out_delay = "3.1"
-    dwell_time = "3.1"
-    
-    if zone_name in scan_lists_dict.keys():
-        # scan list for this zone already created, so we append new channel
-        # after building up list of lists/items
-        scan_member_list = scan_lists_dict[zone_name][0]
-        scan_member_list.append(channel_name)
-        scan_member_rx_list = scan_lists_dict[zone_name][1]
-        scan_member_rx_list.append(channel_rx_freq)
-        scan_member_tx_list = scan_lists_dict[zone_name][2]
-        scan_member_tx_list.append(channel_tx_freq)   
-        scan_list_entry = [scan_member_list, scan_member_rx_list, scan_member_tx_list,
-                           scan_mode, priority_ch_select, 
-                           priority_ch_1, priority_ch_1_rx_freq, priority_ch_1_rx_freq,
-                           priority_ch_2, priority_ch_2_rx_freq, priority_ch_2_tx_freq, 
-                           revert_ch, loop_back_time_a, loop_back_time_b, drop_out_delay, 
-                           dwell_time]
-        scan_lists_dict[zone_name] = scan_list_entry
-        if debug:
-            print("Scan list '{}' updated with '{}'.".format(zone_name, channel_name))
-            print("    scan_lists_dict[{}] = {}".format(zone_name, zones_dict[zone_name]))
-    else:
-        # new zone, so create it
-        scan_lists_dict.update({zone_name:[[channel_name], [channel_rx_freq], [channel_tx_freq],
-                           scan_mode, priority_ch_select, 
-                           priority_ch_1, priority_ch_1_rx_freq, priority_ch_1_rx_freq,
-                           priority_ch_2, priority_ch_2_rx_freq, priority_ch_2_tx_freq, 
-                           revert_ch, loop_back_time_a, loop_back_time_b, drop_out_delay, 
-                           dwell_time]})
+        zones_dict.update({zone_name:
+            [[channel_name],[channel_rx_freq],[channel_tx_freq]]})
         
     return
 
@@ -410,89 +486,37 @@ def add_channels_fm_k7abd_analog_file(k7abd_analog_file_name, channels_dict,
         zone_name = row['Zone']
 
         # Set channel values 
+        ch_type = "Analog"
         ch_name = row['Channel Name']
         ch_rx_freq = row['RX Freq']
         ch_tx_freq = row['TX Freq']
-        ch_type = "A-Analog"
         ch_tx_pwr = row['Power']
         ch_bandwidth = row['Bandwidth']
         ch_ctcss_dcs_decode = row['CTCSS Decode']
         ch_ctcss_dcs_encode = row['CTCSS Encode']
-        ch_contact = "0_Analog"
-        ch_contact_call_type = "Group Call"
-        ch_contact_tg_num = 0
-        ch_radio_id = "none" 
-        ch_tx_permit = "Off" 
-        if ch_ctcss_dcs_decode == "Off":
-            ch_squelch_mode = "Carrier"
-        else:
-            ch_squelch_mode = "CTCSS/DCS"
-        ch_optional_sig = "Off" 
-        ch_dtmf_id = "1"
-        ch_2tone_id = "1"
-        ch_5tone_id = "1" 
-        ch_ptt_id = "Off"
-        ch_color_code = "1"
-        ch_slot = "1"
-        ch_scan_list = zone_name
-        ch_rx_group = "None"
-        ch_ptt_prohibit = row['TX Prohibit']
-        ch_reverse = "Off"
-        ch_simplex_tdma = "Off"
-        ch_tdma_adaptive = "Off"
-        ch_aes_encrypt = "Normal Encryption"
-        ch_digital_encrypt = "Off"
-        ch_call_confirm = "Off"
-        ch_talk_around = "Off"
-        ch_work_alone = "Off"
-        ch_custom_ctcss = "251.1"
-        ch_2tone_decode = "1"
-        ch_ranging = "Off"
-        ch_through_mode = "Off"
-        ch_digi_aprs_rx = "Off"
-        ch_analog_aprs_ptt = "Off"
-        ch_digital_aprs_ptt = "Off"
-        ch_aprs_rpt_type = "Off"
-        ch_digi_aprs_rpt_ch = "1"
-        ch_correct_freq = "0"
-        ch_sms_confirm = "Off"
-        ch_exclude_fm_roaming = "0"
-        ch_dmr_mode = "0"
-        ch_dataack_disable = "0"
-        ch_r5tone_bot = "0"
-        ch_r5tone_eot = "0"
+        ch_tx_prohibit = row['TX Prohibit'] 
+
         if ch_name in channels_dict.keys():
             if debug:
-                print("WARNING:  channel already exists: ", ch_name, "... Not overwriting.")
-        channels_dict.update({ch_name : [ch_rx_freq, ch_tx_freq, ch_type, ch_tx_pwr,
-                                        ch_bandwidth, ch_ctcss_dcs_decode, ch_ctcss_dcs_encode,
-                                        ch_contact, ch_contact_call_type, ch_contact_tg_num, 
-                                        ch_radio_id, ch_tx_permit, ch_squelch_mode, 
-                                        ch_optional_sig, ch_dtmf_id, ch_2tone_id,
-                                        ch_5tone_id, ch_ptt_id, ch_color_code, ch_slot, 
-                                        ch_scan_list,
-                                        ch_rx_group, ch_ptt_prohibit, ch_reverse, 
-                                        ch_simplex_tdma,
-                                        ch_tdma_adaptive, ch_aes_encrypt, ch_digital_encrypt, 
-                                        ch_call_confirm, ch_talk_around, ch_work_alone, 
-                                        ch_custom_ctcss,
-                                        ch_2tone_decode, ch_ranging, ch_through_mode, 
-                                        ch_digi_aprs_rx,
-                                        ch_analog_aprs_ptt, ch_digital_aprs_ptt, 
-                                        ch_aprs_rpt_type,
-                                        ch_digi_aprs_rpt_ch, ch_correct_freq, ch_sms_confirm,
-                                        ch_exclude_fm_roaming,
-                                        ch_dmr_mode,ch_dataack_disable,ch_r5tone_bot,
-                                        ch_r5tone_eot]})
+                print("WARNING:  channel {} already defined.".format(
+                    ch_name))
+        else:
+            # Create a new analog channel in our channels_dict
+            channels_dict.update({ch_name : {
+                 'Ch Type':ch_type, 
+                 'RX Freq':ch_rx_freq, 
+                 'TX Freq':ch_tx_freq, 
+                 'Power':ch_tx_pwr,
+                 'Bandwidth':ch_bandwidth,
+                 'CTCSS Decode':ch_ctcss_dcs_decode,
+                 'CTCSS Encode':ch_ctcss_dcs_encode,
+                 'RX Only':ch_tx_prohibit
+                 }})
 
         # add this channel to the specified zone
-        add_channel_to_zone(zone_name, ch_name, zones_dict, channels_dict, debug=False)
+        add_channel_to_zone(zone_name, ch_name, zones_dict, 
+            channels_dict, debug=False)
         
-        # add this channel to the scanlist for specified zone
-        add_channel_to_zone_scanlist(zone_name, ch_name, zones_dict, channels_dict, 
-                                    scan_lists_dict, debug=False)
-        
-
     return
 
 
@@ -526,31 +550,39 @@ def add_talkgroups_fm_k7abd_talkgroups_file(k7abd_tg_file, tg_by_num_dict, tg_by
             print("WARNING: ",tg_name,"exceeds 16 characters. Length = ",len(tg_name))
             print("   truncating to: ",str(tg_name[:16]))
 
-        # add tg_number/tg_name to dictionaries.  First definition of talk group overrides
-        # subsequent definitions, allowing multiple names for the same talk group number.
-        # Duplicate talk group names must all equate to the same talk group number.
+        # First definition of a talk group name sets the name that will
+        # be used for that talk group number in any channel definitions.
+        # We allow multiple names for the same talk group number.  
+        # Redefinitions for any talk group name must always equate to
+        # the same talk group number.
         if tg_number not in tg_by_num_dict.keys():
-            tg_by_num_dict.update({tg_number:[str(tg_name[:16]), tg_call_type, tg_call_alert]})
-            if tg_name not in tg_by_name_dict.keys():
-                tg_by_name_dict.update({tg_name[:16]:tg_number})
-            else:
-                # Error if attempting to redefine talk group number
-                if tg_by_name_dict[tg_name] != tg_number:
-                    print("ERROR:  Talkgroup '{}' already has different number: '{}'".format(tg_name,
-                          tg_by_name_dict[tg_name]))
-                else:
-                    print("WARNING:  Talkgroup '{}' is being mapped to '{}'".format(tg_name,
-                          tg_by_num_dict[tg_number][0]))
+
+            # sanity check: if tg name already exists it appears in this
+            # case to have been defined as a different number...
+            # That isn't allowed, so ERROR out. 
+            if tg_name in tg_by_name_dict.keys():
+                print("ERROR:  Talkgroup '{}' already defined as: '{}'".format(
+                    tg_name, tg_by_name_dict[tg_name]))
+                sys.exit(-1)
         else:
-            #print("   Talkgroup '{}' will be mapped to '{}' (TG # {}).".format(tg_name, 
-            #   tg_by_num_dict[tg_number][0], tg_number))
-            if tg_name not in tg_by_name_dict.keys():
-                tg_by_name_dict.update({tg_name[:16]:tg_number})
-            else:
-                # Error if attempting to redefine talk group number
+
+            # sanity check: if tg_name already exists in this case,
+            # we need to make sure this repeat definition equates 
+            # to the same talk group number
+            if tg_name in tg_by_name_dict.keys():
+
                 if tg_by_name_dict[tg_name] != tg_number:
-                    print("ERROR:  Talkgroup '{}' already has different number: '{}'".format(tg_name,
-                          tg_by_name_dict[tg_name]))
+                    print("ERROR:  Talkgroup '{}' already defined as: '{}'".format(
+                        tg_name, tg_by_name_dict[tg_name]))
+                    sys.exit(-1)
+
+        # passed sanity checks, safe to add to tg_by_name_dict
+        tg_by_name_dict.update({tg_name[:16]:tg_number})
+
+        # and safe to add to tg_by_num_dict too
+        tg_by_num_dict.update({tg_number:
+            [str(tg_name[:16]), tg_call_type, tg_call_alert]})
+
     
     # clean up
     del tg_df
@@ -560,8 +592,9 @@ def add_talkgroups_fm_k7abd_talkgroups_file(k7abd_tg_file, tg_by_num_dict, tg_by
 
   
     
-def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name, channels_dict, zones_dict,
-                                              tg_by_num_dict, tg_by_name_dict, debug=False):
+def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name, 
+        channels_dict, zones_dict, tg_by_num_dict, tg_by_name_dict, 
+        debug=False):
     """This function writes out a k7abd formatted Digital-Others__ file"""
 
     # Reference of file format - column headings in digital-others file:
@@ -569,7 +602,8 @@ def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name, ch
     #  'Talk Group','TimeSlot','Call Type','TX Permit']
     
     # read in the K7ABD digital-others file
-    print("Processing: {}".format(k7abd_digital_others_file_name))
+    if debug:
+        print("Processing: {}".format(k7abd_digital_others_file_name))
     k7abd_df = pandas.read_csv(k7abd_digital_others_file_name)
     
     # loop through k7abd file rows
@@ -579,17 +613,17 @@ def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name, ch
         zone_name = row['Zone']
         
         # channel name
-        channel_name = row['Channel Name']
-        if len(channel_name) >16:
-            print("Warning: ",channel_name,"exceeds 16 chars, ", len(channel_name))
-            channel_name = channel_name[:16]
+        ch_name = row['Channel Name']
+        if len(ch_name) >16:
+            print("Warning: '{}' exceeds 16 chars({}).".format(
+                ch_name, len(ch_name)))
+            ch_name = ch_name[:16]
 
-        # get "Transmit Power" value
-        channel_tx_power = row['Power']
+        # set channel type
+        ch_type = "Digital"
 
-        # get "Receive Frequency" & "Transmit Frequency"
-        channel_rx_freq = row['RX Freq']
-        channel_tx_freq = row['TX Freq']
+        # set bandwidth
+        ch_bandwidth = "12.5"
 
         # get "contact" value (mapped if needed)
         tg_name = row['Talk Group']
@@ -599,122 +633,44 @@ def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name, ch
         else:
             # Bad day...
             print("ERROR: Undefined talk group: '{}'".format(tg_name))
-        channel_contact = tg_name
+        ch_contact = tg_name
         
-        channel_color_code = row['Color Code']
-        channel_slot = row['TimeSlot']
-        channel_call_type = row['Call Type']
-        channel_contact_tg_num = str(tg_by_name_dict[tg_name])
-        channel_ptt_permit = row['TX Permit']
-
-       
-        # create a channel for this talk group
-        channel = []
-
-        # channel rx/tx frequencies and channel type
-        channel.append(channel_rx_freq)
-        channel.append(channel_tx_freq)
-        channel.append('D-Digital')
-
-        # channel tx power
-        channel.append(channel_tx_power)
-
-        # fixed items:  Band Width, CTCSS encode/decode
-        channel.append('12.5K')
-        channel.append('Off')
-        channel.append('Off')
-
-        # channel contact
-        channel.append(channel_contact)
-
-        # fixed items: Contact Call Type, Contact TG/DMR ID, Radio ID, Busy Lock/Tx Permit
-        channel.append(channel_call_type)
-        channel.append(channel_contact_tg_num)
-        channel.append('My_DMR_ID')
-        channel.append('Same Color Code')
-
-        # fixed items: Squelch Mode, Optional Signal, DTMF ID, 2Tone ID, 5Tone ID,PTT ID
-        channel.append('Carrier')
-        channel.append('Off')
-        channel.append('1')
-        channel.append('1')
-        channel.append('1')
-        channel.append('Off')
-
-        # channel Color Code and Slot
-        channel.append(channel_color_code)
-        channel.append(channel_slot)
-
-        # fixed items: Scan List, Receive Group List, PTT Prohibit, Reverse
-        channel.append(zone_name)
-        channel.append("None")
-        channel.append(channel_ptt_permit)
-        channel.append('Off')
-
-        # fixed items: Simplex TDMA, TDMA Adaptive, AES Digital Encryption, Digital Encryption
-        channel.append('Off')
-        channel.append('Off')
-        channel.append('Normal Encryption')
-        channel.append('Off')
-
-        # fixed items: Call Confirmation,Talk Around, Work Alone, Custom CTCSS 
-        channel.append('Off')
-        channel.append('Off')
-        channel.append('Off')
-        channel.append('251.1')
-
-        # fixed items: 2TONE Decode, Ranging, Through Mode, Digi APRS RX,
-        channel.append('1')
-        channel.append('Off')
-        channel.append('Off')
-        channel.append('Off')
-
-        # fixed items: Analog APRS PTT Mode, Digital APRS PTT Mode, APRS Report Type
-        channel.append('Off')
-        channel.append('Off')
-        channel.append('Off')
-
-        # fixed items: Digital APRS Report Channel, Correct Frequency[Hz]
-        channel.append('1')
-        channel.append('0')
-
-        # fixed items: SMS Confirmation, Exclude channel from roaming 
-        channel.append('Off')
-        channel.append('0')
-        
-        # calculate DMR MODE
-        if channel_rx_freq == channel_tx_freq:
-            # assume simplex mode
-            dmr_mode = 0
-        else:
-            # assume repeater mode (we ignore dual slot simplex possibility)
-            dmr_mode = 1
-        channel.append(dmr_mode)
-        
-        # fixed items: DataACK Disable, R5toneBot, R5ToneEot
-        channel.append('0')
-        channel.append('0')
-        channel.append('0')
+        # get channel attributes 
+        ch_tx_power = row['Power']
+        ch_rx_freq = row['RX Freq']
+        ch_tx_freq = row['TX Freq']
+        ch_tx_pwr = row['Power']
+        ch_color_code = row['Color Code']
+        ch_slot = row['TimeSlot']
+        ch_call_type = row['Call Type']
+        ch_contact_tg_num = str(tg_by_name_dict[tg_name])
+        ch_tx_permit = row['TX Permit']
 
         # now add this channel to the channel dictionary
-        #print("Adding channel_name = ", channel_name)
-        if channel_name in channels_dict.keys():
-            #print("Adding channel_name = ", channel_name)
-            print("WARNING:  channel '{}' already exists. Keeping first definition".format(channel_name))
-            #print("   old value of channel = ", channels_dict[channel_name])
-            #channels_dict[channel_name] = channel
-            #print("   new value of channel = ", channels_dict[channel_name])
+        if ch_name in channels_dict.keys():
+            if debug:
+                print("WARNING:  channel {} already defined.".format(
+                    ch_name))
         else:
-            #print("Adding channel: ", channel_name)
-            channels_dict.update({channel_name:channel})
+            # Create a new digital channel in our channels_dict
+            channels_dict.update({ch_name : {
+                 'Ch Type':ch_type, 
+                 'RX Freq':ch_rx_freq, 
+                 'TX Freq':ch_tx_freq, 
+                 'Power':ch_tx_pwr,
+                 'Bandwidth':ch_bandwidth,
+                 'Color Code':ch_color_code,
+                 'Talk Group':ch_contact,
+                 'Time Slot':ch_slot,
+                 'Call Type':ch_call_type,
+                 'TX Permit':ch_tx_permit,
+                 'RX Only':"Off"
+                 }})
 
         # add this channel to the specified zone
-        add_channel_to_zone(zone_name, channel_name, zones_dict, channels_dict, debug=False)
+        add_channel_to_zone(zone_name, ch_name, zones_dict, 
+            channels_dict, debug=False)
      
-        # add this channel to the scanlist for specified zone
-        add_channel_to_zone_scanlist(zone_name, channel_name, zones_dict, channels_dict, 
-                                    scan_lists_dict, debug=False)
-        
     # clean-up
     del k7abd_df
     
@@ -722,8 +678,9 @@ def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name, ch
 
 
 
-def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name, channels_dict, zones_dict, 
-                                                 tg_by_num_dict, tg_by_name_dict, debug=False):
+def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name, 
+        channels_dict, zones_dict, tg_by_num_dict, tg_by_name_dict, 
+        debug=False):
 
     # read in the k7abd digital repeaters file
     if debug:
@@ -738,154 +695,91 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name, channe
         zone_name = row['Zone Name']
         zone_name_list = zone_name.split(';')
         zone_name = zone_name_list[0]
-        channel_prefix = zone_name_list[1]
+        ch_prefix = zone_name_list[1]
         if debug:
             print("   Working on Zone: ", zone_name)
 
+        # set channel type
+        ch_type = "Digital"
+
         # get "Transmit Power" value
-        channel_tx_power = row['Power']
+        ch_tx_power = row['Power']
 
         # get "Receive Frequency" & "Transmit Frequency"
-        channel_rx_freq = row['RX Freq']
-        channel_tx_freq = row['TX Freq']
+        ch_rx_freq = row['RX Freq']
+        ch_tx_freq = row['TX Freq']
 
         # get "Color Code" value
-        channel_color_code = row['Color Code']
+        ch_color_code = row['Color Code']
 
-        # Now loop through rest of columns in k7abd digital file and create
+        # Now loop through rest of columns in k7abd repeaters file and create
         # a channel for each talk group represented that has a slot specified..
-        talk_groups = k7abd_df.columns
+        talk_groups = []
+        column_items = k7abd_df.columns
+        for item in column_items:
+            if item not in ['Zone Name','Comment','Power',
+                             'RX Freq','TX Freq','Color Code']:
+                talk_groups.append(item)
+
         for item in talk_groups:
 
-            # Set talk group name to 1st part of column heading if ';' present in the K7ABD file
+            # Set talk group name to 1st part of column heading 
+            # if ';' present in the K7ABD file
             item_list = item.split(';')
             tg_name = item_list[0]
 
-            if item in ['Zone Name','Comment','Power','RX Freq','TX Freq','Color Code']:
-                # ignore these columns - already have these processed
-                pass
+            ch_slot = row[item]
+            if ch_slot not in ['1','2']:
+               # this talk group not on this repeater, so 
+               # don't create a channel for it...
+               pass
+
+            # create a channel for this talk group
+                
+            # fix tg_name value - map if needed
+            if tg_name in tg_by_name_dict.keys():
+                # lookup TG number and remap name to first value in 
+                # our tg_by_num_dict
+                tg_name = tg_by_num_dict[tg_by_name_dict[tg_name]][0]
             else:
-                channel_slot = row[item]
-                if (channel_slot == '1') or (channel_slot == '2'):
-                    # create a channel for this talk group
-                    #print("   working on talk group",tg_name,"  slot =", channel_slot)
-                    channel = []
+                # Bad day...
+                print("ERROR: Undefined talk group: '{}'".format(tg_name))
+                sys.exit(-1)
 
-                    # fix tg_name value - map if needed
-                    if tg_name in tg_by_name_dict.keys():
-                        # lookup TG number and remap name to value in tg_by_num_dict
-                        tg_name = tg_by_num_dict[tg_by_name_dict[tg_name]][0]
-                    else:
-                        # Bad day...
-                        print("ERROR: Undefined talk group: '{}'".format(tg_name))
+            # channel name
+            ch_name = ch_prefix + ' ' + tg_name
+            if len(ch_name) >16:
+                print("Warning: '{}' > 16 chars, changed to '{}'.".format(
+                    ch_name, ch_name[:16]))
+                ch_name = ch_name[:16]
 
-                    # channel name
-                    channel_name = channel_prefix + ' ' + tg_name
-                    if len(channel_name) >16:
-                        print("Warning: '{}' > 16 chars, truncating to '{}'.".format(channel_name,
-                                                                                    channel_name[:16]))
-                        channel_name = channel_name[:16]
+            # now add this channel to the channel dictionary
+            if ch_name in channels_dict.keys():
+                if debug:
+                    print("WARNING:  channel {} already defined.".format(
+                        ch_name))
+            else:
+                # Create a new digital channel in our channels_dict
+                channels_dict.update({ch_name : {
+                    'Ch Type':ch_type, 
+                    'RX Freq':ch_rx_freq, 
+                    'TX Freq':ch_tx_freq, 
+                    'Power':ch_tx_pwr,
+                    'Bandwidth':ch_bandwidth,
+                    'CTCSS Decode':ch_ctcss_dcs_decode,
+                    'CTCSS Encode':ch_ctcss_dcs_encode,
+                    'Color Code':ch_color_code,
+                    'Talk Group':ch_contact,
+                    'Time Slot':ch_slot,
+                    'Call Type':ch_call_type,
+                    'TX Permit':ch_tx_permit,
+                    'RX Only':"Off"
+                    }})
 
-                    # channel rx/tx frequencies and channel type
-                    channel.append(channel_rx_freq)
-                    channel.append(channel_tx_freq)
-                    channel.append('D-Digital')
-
-                    # channel tx power
-                    channel.append(channel_tx_power)
-
-                    # fixed items:  Band Width, CTCSS encode/decode
-                    channel.append('12.5K')
-                    channel.append('Off')
-                    channel.append('Off')
-
-                    # channel contact
-                    channel.append(tg_name)
-
-                    # fixed items: Contact Call Type, Contact TG/DMR ID, Radio ID, Busy Lock/Tx Permit
-                    channel.append('Group Call')
-                    channel.append(str(tg_by_name_dict[tg_name]))
-                    channel.append('My_DMR_ID')
-                    channel.append('Same Color Code')
-
-                    # fixed items: Squelch Mode, Optional Signal, DTMF ID, 2Tone ID, 5Tone ID,PTT ID
-                    channel.append('Carrier')
-                    channel.append('Off')
-                    channel.append('1')
-                    channel.append('1')
-                    channel.append('1')
-                    channel.append('Off')
-
-                    # channel Color Code and Slot
-                    channel.append(channel_color_code)
-                    channel.append(channel_slot)
-
-                    # fixed items: Scan List, Receive Group List, PTT Prohibit, Reverse
-                    channel.append("None")
-                    channel.append("None")
-                    channel.append('Off')
-                    channel.append('Off')
-
-                    # fixed items: Simplex TDMA, TDMA Adaptive, AES Digital Encryption, Digital Encryption
-                    channel.append('Off')
-                    channel.append('Off')
-                    channel.append('Normal Encryption')
-                    channel.append('Off')
-
-                    # fixed items: Call Confirmation,Talk Around, Work Alone, Custom CTCSS 
-                    channel.append('Off')
-                    channel.append('Off')
-                    channel.append('Off')
-                    channel.append('251.1')
-
-                    # fixed items: 2TONE Decode, Ranging, Through Mode, Digi APRS RX,
-                    channel.append('1')
-                    channel.append('Off')
-                    channel.append('Off')
-                    channel.append('Off')
-
-                    # fixed items: Analog APRS PTT Mode, Digital APRS PTT Mode, APRS Report Type
-                    channel.append('Off')
-                    channel.append('Off')
-                    channel.append('Off')
-
-                    # fixed items: Digital APRS Report Channel, Correct Frequency[Hz]
-                    channel.append('1')
-                    channel.append('0')
-
-                    # fixed items: SMS Confirmation, Exclude channel from roaming 
-                    channel.append('Off')
-                    channel.append('0')
+            # add this channel to the specified zone
+            add_channel_to_zone(zone_name, channel_name, zones_dict, 
+                channels_dict, debug=False)
                     
-                     # fixed items: DMR MODE, DataACK Disable, R5toneBot, R5ToneEot
-                    channel.append('1')
-                    channel.append('0')
-                    channel.append('0')
-                    channel.append('0')
-
-                    # now add this channel to the channel dictionary
-                    if debug:
-                            print("   Adding channel {}".format(channel_name))
-                    if channel_name in channels_dict.keys():
-                        print("WARNING:  channel already exists: ", channel_name)
-                        if debug:
-                            print("      Existing channel = ", channels_dict[channel_name])
-                            print("      Ignored new value = ", channel)
-                    else:
-                        channels_dict.update({channel_name:channel})
-
-                    # add this channel to the specified zone
-                    add_channel_to_zone(zone_name, channel_name, zones_dict, channels_dict, debug=False)
-                    
-                    # add this channel to the scanlist for specified zone
-                    add_channel_to_zone_scanlist(zone_name, channel_name, zones_dict, channels_dict, 
-                                                scan_lists_dict, debug=False)
-                    
-                else:
-                    # this talk group not on this repeater, so no channel for it...
-                    #print("Skipping... slot =", row[item])
-                    pass
-
     # clean-up
     del k7abd_df
 
@@ -897,11 +791,11 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name, channe
 
     
 
-##################################################################################################
+###############################################################################
 #
 # Main program...
 #  
-##################################################################################################
+###############################################################################
 
 
 
@@ -918,119 +812,119 @@ zones_order_list = []
 
 def main():
 
-   # get today's date to stamp output files with today's iso-date.
-   isodate = time.strftime("%Y-%m-%d")
+    # get today's date to stamp output files with today's iso-date.
+    isodate = time.strftime("%Y-%m-%d")
 
-  # Greet the customer
-   print("")
-   print("Import File Builder for Connect Systems CS800D CPS")
-   print("Source: https://github.com/n7ekb/cps-import-builder")
-   print("")
+    # Greet the customer
+    print("")
+    print("Import File Builder for Connect Systems CS800D CPS")
+    print("Source: https://github.com/n7ekb/cps-import-builder")
+    print("")
 
-   # get today's date to stamp output files with today's iso-date.
-   isodate = time.strftime("%Y-%m-%d")
+    # get today's date to stamp output files with today's iso-date.
+    isodate = time.strftime("%Y-%m-%d")
 
-   # Setup our command line handler
-   debugmode = False
-   script_name = sys.argv[0]
-   parser = argparse.ArgumentParser()
-   parser.add_argument('--inputdir', help='Directory containing input files',
-                       required=False, default='./input_data_files')
-   parser.add_argument('--outputdir', help='Target directory for output files',
-                       required=False, default='./output_files')
-   parser.add_argument('--debugmode', help='Set debug flag for troubleshooting',
-                       required=False, action='store_true')
+    #Setup our command line handler
+    debugmode = False
+    script_name = sys.argv[0]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--inputdir', help='Directory containing input files',
+        required=False, default='./input_data_files')
+    parser.add_argument('--outputdir', help='Target directory for output files',
+        required=False, default='./output_files')
+    parser.add_argument('--debugmode', 
+        help='Set debug flag for troubleshooting', required=False, 
+        action='store_true')
 
-   # parse the command line
-   args = parser.parse_args()
-   debugflg = args.debugmode
+    # parse the command line
+    args = parser.parse_args()
+    debugflg = args.debugmode
 
-   # set working directories from command line values
-   inputs_dir = args.inputdir
-   print("Looking in '{}' for input files.".format(inputs_dir))
-   outputs_dir = args.outputdir
-   print("Putting output files in: '{}'.".format(outputs_dir))
+    # set working directories from command line values
+    inputs_dir = args.inputdir
+    print("Reading input files from: '{}'.".format(inputs_dir))
+    outputs_dir = args.outputdir
+    print("Putting output files in: '{}'.".format(outputs_dir))
 
+    # define our export file names 
+    talk_groups_output_filename = 'talk_groups_{}.xlsx'.format(isodate)
+    talk_groups_output_file = os.path.join(outputs_dir, 
+        talk_groups_output_filename)
+    channels_output_filename = 'channels_{}.xlsx'.format(isodate)
+    channels_output_file = os.path.join(outputs_dir, channels_output_filename) 
 
-   # define our export files 
-   talk_groups_output_filename = 'talk_groups_{}.xlsx'.format(isodate)
-   talk_groups_output_file = os.path.join(outputs_dir, 
-                                          talk_groups_output_filename)
-   channels_output_filename = 'channels_{}.xlsx'.format(isodate)
-   channels_output_file = os.path.join(outputs_dir, channels_output_filename) 
+    # Read in Zone Order file
+    zone_order_filespec = os.path.join(inputs_dir, "Zone_Order.csv")
+    print("Reading Zone Order file: {}".format( 
+        os.path.basename(zone_order_filespec)))
+    zones_order_list = read_zone_order_file(zone_order_filespec, debug=debugflg)
 
+    # Add talk groups from K7ABD Talkgroups__ files
+    talkgroups_filespec = os.path.join(inputs_dir, 'Talkgroups__*')
+    file_list = []
+    for match in glob.iglob(talkgroups_filespec, recursive=False):
+        file_list.append(match)
+    for talkgroups_filename in sorted(file_list):
+        print("Adding talkgroups:  {}".format( 
+            os.path.basename(talkgroups_filename)))
+        add_talkgroups_fm_k7abd_talkgroups_file(talkgroups_filename, 
+            tg_by_num_dict, tg_by_name_dict, debug=debugflg)
 
-
-   # Read in Zone Order file
-   zone_order_filespec = os.path.join(inputs_dir, "Zone_Order.csv")
-   zones_order_list = read_zone_order_file(zone_order_filespec, debug=debugflg)
-
-
-
-   # Add channels from K7ABD Analog__ files
-   analog_channels_filespec = os.path.join(inputs_dir, 'Analog__*')
-   file_list = []
-   for match in glob.iglob(analog_channels_filespec, recursive=False):
-       file_list.append(match)
-   for analog_channels_filename in sorted(file_list):
-       print("Adding analog channels from K7ABD file: ", 
-               analog_channels_filename)
-       add_channels_fm_k7abd_analog_file(analog_channels_filename, 
-               channels_dict, zones_dict, debug=debugflg)
+    # Add channels from K7ABD Analog__ files
+    analog_channels_filespec = os.path.join(inputs_dir, 'Analog__*')
+    file_list = []
+    for match in glob.iglob(analog_channels_filespec, recursive=False):
+        file_list.append(match)
+    for analog_channels_filename in sorted(file_list):
+        print("Adding channels:  {}".format( 
+            os.path.basename(analog_channels_filename)))
+        add_channels_fm_k7abd_analog_file(analog_channels_filename, 
+            channels_dict, zones_dict, debug=debugflg)
     
+    # Add channels from K7ABD Digital-Others__ files
+    digital_others_filespec = os.path.join(inputs_dir, 'Digital-Others__*')
+    file_list = []
+    for match in glob.iglob(digital_others_filespec, recursive=False):
+        file_list.append(match)
+    for digital_others_filename in sorted(file_list):
+        print("Adding channels:  {}".format( 
+            os.path.basename(digital_others_filename)))
+        add_channels_fm_k7abd_digital_others_file(digital_others_filename, 
+            channels_dict, zones_dict, tg_by_num_dict, tg_by_name_dict, 
+            debug=debugflg)
     
-    
-   # Add talk groups from K7ABD Talkgroups__ files
-   talkgroups_filespec = os.path.join(inputs_dir, 'Talkgroups__*')
-   file_list = []
-   for match in glob.iglob(talkgroups_filespec, recursive=False):
-       file_list.append(match)
-   for talkgroups_filename in sorted(file_list):
-       print("Adding talkgroups from K7ABD file: ", talkgroups_filename)
-       add_talkgroups_fm_k7abd_talkgroups_file(talkgroups_filename, tg_by_num_dict, tg_by_name_dict, debug=debugflg)
-
-    
-    
-   # Add channels from K7ABD Digital-Others__ files
-   digital_others_filespec = os.path.join(inputs_dir, 'Digital-Others__*')
-   file_list = []
-   for match in glob.iglob(digital_others_filespec, recursive=False):
-       file_list.append(match)
-   for digital_others_filename in sorted(file_list):
-       print("Adding digital-other channels from K7ABD file: ", digital_others_filename)
-       add_channels_fm_k7abd_digital_others_file(digital_others_filename, 
-               channels_dict, zones_dict, tg_by_num_dict, tg_by_name_dict, 
-               debug=debugflg)
+    # Add channels from K7ABD Digital-Repeaters files
+    digital_repeaters_filespec = os.path.join(inputs_dir, 
+        'Digital-Repeaters__*')
+    file_list = []
+    for match in glob.iglob(digital_repeaters_filespec, recursive=False):
+        file_list.append(match)
+    for digital_repeaters_filename in sorted(file_list):
+        print("Adding channels :  {}".format(
+            os.path.basename(digital_repeaters_filename)))
+        add_channels_fm_k7abd_digital_repeaters_file(
+            digital_repeaters_filename, channels_dict, zones_dict, 
+            tg_by_num_dict, tg_by_name_dict, debug=debugflg)
 
 
-    
-   # Add channels from K7ABD Digital-Repeaters files
-   digital_repeaters_filespec = os.path.join(inputs_dir, 'Digital-Repeaters__*')
-   file_list = []
-   for match in glob.iglob(digital_repeaters_filespec, recursive=False):
-       file_list.append(match)
-   for digital_repeaters_filename in sorted(file_list):
-       print("Adding digital-repeater channels from k7abd file: ", digital_repeaters_filename)
-       add_channels_fm_k7abd_digital_repeaters_file(digital_repeaters_filename, 
-               channels_dict, zones_dict, tg_by_num_dict, tg_by_name_dict, 
-               debug=debugflg)
+    # Write out a CS800D talk groups import file
+    print("Generating talk group import file: {}".format(
+        os.path.basename(talk_groups_output_file)))
+    cs800d_write_talk_groups_export(tg_by_num_dict, 
+        talk_groups_output_file, debug=False)
 
+    # Write out a CS800D channel import file
+    print("Generating channels import file: {}".format(
+        os.path.basename(channels_output_file)))
+    cs800d_write_channels_export(channels_dict, 
+        channels_output_file, debug=False)
 
-
-   # write our in-memory representation to Anytone 878 export files for import back into CPS...
-   cs800d_write_talk_groups_export(tg_by_num_dict, talk_groups_output_file, debug=False)
-   cs800d_write_channels_export(channels_dict, channels_output_file, debug=False)
-
-
-   print("")
-   print("All done!")
-   print("")
-
+    print("")
+    print("All done!")
+    print("")
 
 
 # if this file isn't being imported as a module then call ourselves as the main thing...
 if __name__ == "__main__":
    main()
-
-
 
