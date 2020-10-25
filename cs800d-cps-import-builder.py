@@ -564,6 +564,10 @@ def add_talkgroups_fm_k7abd_talkgroups_file(k7abd_tg_file, tg_by_num_dict, tg_by
                 print("ERROR:  Talkgroup '{}' already defined as: '{}'".format(
                     tg_name, tg_by_name_dict[tg_name]))
                 sys.exit(-1)
+
+            # now safe to add to tg_by_num_dict - becomes default TG name 
+            tg_by_num_dict.update({tg_number:
+                [str(tg_name[:16]), tg_call_type, tg_call_alert]})
         else:
 
             # sanity check: if tg_name already exists in this case,
@@ -579,9 +583,6 @@ def add_talkgroups_fm_k7abd_talkgroups_file(k7abd_tg_file, tg_by_num_dict, tg_by
         # passed sanity checks, safe to add to tg_by_name_dict
         tg_by_name_dict.update({tg_name[:16]:tg_number})
 
-        # and safe to add to tg_by_num_dict too
-        tg_by_num_dict.update({tg_number:
-            [str(tg_name[:16]), tg_call_type, tg_call_alert]})
 
     
     # clean up
@@ -734,8 +735,6 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
                # don't create a channel for it...
                pass
 
-            # create a channel for this talk group
-                
             # fix tg_name value - map if needed
             if tg_name in tg_by_name_dict.keys():
                 # lookup TG number and remap name to first value in 
@@ -764,20 +763,18 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
                     'Ch Type':ch_type, 
                     'RX Freq':ch_rx_freq, 
                     'TX Freq':ch_tx_freq, 
-                    'Power':ch_tx_pwr,
-                    'Bandwidth':ch_bandwidth,
-                    'CTCSS Decode':ch_ctcss_dcs_decode,
-                    'CTCSS Encode':ch_ctcss_dcs_encode,
+                    'Power':ch_tx_power,
+                    'Bandwidth':"12.5",
                     'Color Code':ch_color_code,
-                    'Talk Group':ch_contact,
+                    'Talk Group':tg_name,
                     'Time Slot':ch_slot,
-                    'Call Type':ch_call_type,
-                    'TX Permit':ch_tx_permit,
+                    'Call Type':"Group Call",
+                    'TX Permit':"Color Code Free",
                     'RX Only':"Off"
                     }})
 
             # add this channel to the specified zone
-            add_channel_to_zone(zone_name, channel_name, zones_dict, 
+            add_channel_to_zone(zone_name, ch_name, zones_dict, 
                 channels_dict, debug=False)
                     
     # clean-up
@@ -900,7 +897,7 @@ def main():
     for match in glob.iglob(digital_repeaters_filespec, recursive=False):
         file_list.append(match)
     for digital_repeaters_filename in sorted(file_list):
-        print("Adding channels :  {}".format(
+        print("Adding channels:  {}".format(
             os.path.basename(digital_repeaters_filename)))
         add_channels_fm_k7abd_digital_repeaters_file(
             digital_repeaters_filename, channels_dict, zones_dict, 
@@ -922,6 +919,7 @@ def main():
     print("")
     print("All done!")
     print("")
+
 
 
 # if this file isn't being imported as a module then call ourselves as the main thing...
