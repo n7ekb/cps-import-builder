@@ -803,6 +803,7 @@ channels_dict = {}
 rx_groups_dict = {}
 scan_lists_dict = {}
 zones_order_list = []
+supported_cps_targets = ['878','cs800d']
 
 
 def main():
@@ -812,7 +813,8 @@ def main():
 
     # Greet the customer
     print("")
-    print("Import File Builder for Connect Systems CS800D CPS")
+    print("CPS Import File Builder")
+    print("Supported CPS targets: {}".format(supported_cps_targets))
     print("Source: https://github.com/n7ekb/cps-import-builder")
     print("")
 
@@ -823,6 +825,10 @@ def main():
     debugmode = False
     script_name = sys.argv[0]
     parser = argparse.ArgumentParser()
+    parser.add_argument('--cps', action='append', required=True,
+        dest='cps_target_list',
+        help='Specify CPS target: 878/cs800d; multiple allowed',
+        default=[])
     parser.add_argument('--inputdir', help='Directory containing input files',
         required=False, default='./input_data_files')
     parser.add_argument('--outputdir', help='Target directory for output files',
@@ -835,18 +841,23 @@ def main():
     args = parser.parse_args()
     debugflg = args.debugmode
 
+    # sanity check --cps target(s)
+    for selection in args.cps_target_list:
+        # if they specify all we just generate everything we support!
+        if selection == 'all':
+            args.cps_target_list = supported_cps_targets
+            continue
+        else:
+            if selection not in supported_cps_targets:
+                print("ERROR: {} not a supported CPS target.".format(selection))
+                print("Supported targets are: {}".format(supported_cps_targets))
+                sys.exit(-1)
+
     # set working directories from command line values
     inputs_dir = args.inputdir
     print("Reading input files from: '{}'.".format(inputs_dir))
     outputs_dir = args.outputdir
     print("Putting output files in: '{}'.".format(outputs_dir))
-
-    # define our export file names 
-    talk_groups_output_filename = 'talk_groups_{}.xlsx'.format(isodate)
-    talk_groups_output_file = os.path.join(outputs_dir, 
-        talk_groups_output_filename)
-    channels_output_filename = 'channels_{}.xlsx'.format(isodate)
-    channels_output_file = os.path.join(outputs_dir, channels_output_filename) 
 
     # Read in Zone Order file
     zone_order_filespec = os.path.join(inputs_dir, "Zone_Order.csv")
@@ -901,18 +912,46 @@ def main():
             digital_repeaters_filename, channels_dict, zones_dict, 
             tg_by_num_dict, tg_by_name_dict, debug=debugflg)
 
+    # Generate import files for Connect Systems CS800D
+    if 'cs800d' in args.cps_target_list:
 
-    # Write out a CS800D talk groups import file
-    print("Generating talk group import file: {}".format(
-        os.path.basename(talk_groups_output_file)))
-    cs800d_write_talk_groups_export(tg_by_num_dict, 
-        talk_groups_output_file, debug=False)
+        print("")
+        print("Generating import files for Connect Systems CS800D")
 
-    # Write out a CS800D channel import file
-    print("Generating channels import file: {}".format(
-        os.path.basename(channels_output_file)))
-    cs800d_write_channels_export(channels_dict, 
-        channels_output_file, debug=False)
+        # define our export file names 
+        talk_groups_output_filename = 'cs800d_talk_groups_{}.xlsx'.format(
+            isodate)
+        talk_groups_output_file = os.path.join(outputs_dir, 
+        talk_groups_output_filename)
+        channels_output_filename = 'cs800d_channels_{}.xlsx'.format(isodate)
+        channels_output_file = os.path.join(outputs_dir, 
+            channels_output_filename) 
+    
+        # Write out a CS800D talk groups import file
+        print("   Talk group import file: {}".format(
+            os.path.basename(talk_groups_output_file)))
+        cs800d_write_talk_groups_export(tg_by_num_dict, 
+            talk_groups_output_file, debug=False)
+    
+        # Write out a CS800D channel import file
+        print("   Channels import file: {}".format(
+            os.path.basename(channels_output_file)))
+        cs800d_write_channels_export(channels_dict, 
+            channels_output_file, debug=False)
+
+    if '878' in args.cps_target_list:
+
+        print("")
+        print("Generating import files for Anytone D878UV")
+
+        # define our export file names 
+        talk_groups_output_filename = 'd878uv_talk_groups_{}.xlsx'.format(
+            isodate)
+        talk_groups_output_file = os.path.join(outputs_dir, 
+        talk_groups_output_filename)
+        channels_output_filename = 'd878uv_channels_{}.xlsx'.format(isodate)
+        channels_output_file = os.path.join(outputs_dir, 
+            channels_output_filename) 
 
     print("")
     print("All done!")
