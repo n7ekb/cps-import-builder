@@ -1006,15 +1006,17 @@ def main():
     script_name = sys.argv[0]
     parser = argparse.ArgumentParser()
     parser.add_argument('--cps', action='append', required=True,
-        dest='cps_target_list',
-        help='Specify CPS target: 878/cs800d; multiple allowed',
+        dest='cps_target',
+        help='specify CPS target; multiple targets allowed, or use special target "all" to generate files for all supported targets',
         default=[])
-    parser.add_argument('--inputdir', help='Directory containing input files',
+    parser.add_argument('--inputdir', 
+        help='specify directory containing input files',
         required=False, default='./input_data_files')
-    parser.add_argument('--outputdir', help='Target directory for output files',
+    parser.add_argument('--outputdir', 
+        help='specify directory for output files',
         required=False, default='./output_files')
     parser.add_argument('--debugmode', 
-        help='Set debug flag for troubleshooting', required=False, 
+        help='set the debug flag for troubleshooting', required=False, 
         action='store_true')
 
     # parse the command line
@@ -1022,10 +1024,10 @@ def main():
     debugflg = args.debugmode
 
     # sanity check --cps target(s)
-    for selection in args.cps_target_list:
+    for selection in args.cps_target:
         # if they specify all we just generate everything we support!
         if selection == 'all':
-            args.cps_target_list = supported_cps_targets
+            args.cps_target = supported_cps_targets
             continue
         else:
             if selection not in supported_cps_targets:
@@ -1093,7 +1095,7 @@ def main():
             tg_by_num_dict, tg_by_name_dict, debug=debugflg)
 
     # Generate import files for Connect Systems CS800D
-    if 'cs800d' in args.cps_target_list:
+    if 'cs800d' in args.cps_target:
 
         print("")
         print("Generating import files for Connect Systems CS800D")
@@ -1119,7 +1121,7 @@ def main():
         cs800d_write_channels_export(channels_dict, 
             channels_output_file, debug=False)
 
-    if '878' in args.cps_target_list:
+    if '878' in args.cps_target:
 
         print("")
         print("Generating import files for Anytone D878UV")
