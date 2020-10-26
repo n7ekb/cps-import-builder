@@ -137,6 +137,186 @@ cdcss_list = ['D023N','D025N','D026N','D031N','D032N','D043N','D047N','D051N',
 
 
 
+def anytone_write_zones_export(zones_dict, zones_order_list, 
+        zones_export_file, channels_dict, debug=False):
+    """This function writes out an Anytone D878 zones import/export file"""
+
+    if debug:
+            print("Preparing Zones Export File...")
+            
+    # Create a dataframe from the zones dict 
+    header_row = ['No.','Zone Name','Zone Channel Member',
+                  'Zone Channel Member RX Frequency',
+                  'Zone Channel Member TX Frequency',
+                  'A Channel','A Channel RX Frequency',
+                  'A Channel TX Frequency',
+                  'B Channel','B Channel RX Frequency',
+                  'B Channel TX Frequency']
+    zones_out_dict = {}
+    zones_not_ordered_list = []
+    cnt = 1
+    for zone_name in zones_dict.keys():
+        if debug:
+            print("   Adding zone {} with following members:".format(zone_name))
+            print("   ", zones_dict[zone_name])
+        row_list = []
+        row_list.append(str(cnt))
+        cnt = cnt + 1
+        row_list.append(zone_name)
+
+        # build Zone Channel Member string from list
+        member_str = '|'.join(zones_dict[zone_name][0])
+        if debug:
+            print("   Member string: '{}'".format(member_str))
+        row_list.append(member_str)
+        
+        # build Zone Channel Rx Freq string
+        rx_freq_str = '|'.join(zones_dict[zone_name][1])
+        row_list.append(rx_freq_str)
+        
+        # build Zone Channel Tx Freq string
+        tx_freq_str = '|'.join(zones_dict[zone_name][2])
+        row_list.append(tx_freq_str)
+        
+        # now use first member channel info as the "A" & "B" VFO default
+        first_member_name = zones_dict[zone_name][0][0]
+        attr_dict = channels_dict[first_member_name]
+        row_list.append(first_member_name)
+        row_list.append(attr_dict['RX Freq'])
+        row_list.append(attr_dict['TX Freq'])
+        row_list.append(first_member_name)
+        row_list.append(attr_dict['RX Freq'])
+        row_list.append(attr_dict['TX Freq'])
+        zones_out_dict.update({zone_name:row_list})
+        if zone_name not in zones_order_list:
+            zones_not_ordered_list.append(row_list)
+        
+    # Build zones_out_list to match zones_order_list; all the rest of the zones
+    # go to bottom of list in the order they were processed
+    zones_out_list = []
+    for zone_name in zones_order_list:
+        if zone_name in zones_out_dict.keys():
+            if debug:
+                print("   Adding zone to zones_out_list: {}".format(zone_name))
+            zones_out_list.append(zones_out_dict[zone_name])
+        else:
+            print("Warning:  Zone '{}' specified in Zones_Order.csv file not used!".format(zone_name))
+    for i in range(len(zones_not_ordered_list)):
+        if debug:
+            print("   Adding zone to zones_out_list: {}".format(zones_not_ordered_list[i][1]))
+        zones_out_list.append(zones_not_ordered_list[i])
+    
+    # Output our Zones dataframe
+    zones_out_df = pandas.DataFrame(zones_out_list, columns=header_row)
+    
+    # renumber the "No." column to match new order
+    for i in range(len(zones_out_df.index)):
+        zones_out_df.at[i, 'No.'] = i+1
+    
+    if debug:
+        print("Writing output to: ", zones_export_file)
+    zones_out_df.to_csv(zones_export_file, index=False, header=True, quoting=csv.QUOTE_ALL,
+                   line_terminator='\r\n')
+
+    # clean up... 
+    del zones_out_list
+    del zones_out_df
+
+    return
+
+
+
+def anytone_write_talk_groups_export(talk_groups_dict, 
+        talk_groups_export_file, debug=False):
+    """This function writes out an Anytone D878 talk groups file"""
+
+    # Create a dataframe from the talk groups dict and output it...
+    header_row = ['No.','Radio ID','Name','Call Type','Call Alert']
+    talk_groups_out_list = []
+    cnt = 1
+    for tg_id in sorted(talk_groups_dict.keys()):
+        row_list = []
+        row_list.append(str(cnt))
+        cnt = cnt + 1
+        row_list.append(tg_id)
+        tg_name = talk_groups_dict[tg_id][0]
+        if len(tg_name) > 16:
+            print("WARNING:  TG Name '{}' > 16, truncating to '{}'".format(
+                tg_name,tg_name[:16]))
+        row_list.append(tg_name[:16])
+        tg_call_type = talk_groups_dict[tg_id][1]
+        row_list.append(tg_call_type)
+        tg_call_alert = talk_groups_dict[tg_id][2]
+        row_list.append(tg_call_alert)
+        talk_groups_out_list.append(row_list)
+    talk_groups_out_df = pandas.DataFrame(talk_groups_out_list, 
+        columns=header_row)
+
+    if debug:
+        print("Writing output to: ", talk_groups_export_file)
+    talk_groups_out_df.to_csv(talk_groups_export_file, index=False, 
+            header=True, quoting=csv.QUOTE_ALL, line_terminator='\r\n')
+
+    # clean up... 
+    del talk_groups_out_list
+    del talk_groups_out_df
+
+    return
+
+
+
+def anytone_write_channels_export(channels_dict, channels_export_file, 
+        debug=False):
+    """This function writes out an Anytone D878 channels import/export file"""
+    
+    # Create a dataframe from the channels dict and output it...
+    header_row = ['No.','Channel Name','Receive Frequency',
+                  'Transmit Frequency','Channel Type','Transmit Power',
+                  'Band Width','CTCSS/DCS Decode','CTCSS/DCS Encode',
+                  'Contact','Contact Call Type','Contact TG/DMR ID','Radio ID',
+                  'Busy Lock/TX Permit','Squelch Mode','Optional Signal',
+                  "DTMF ID",'2Tone ID','5Tone ID','PTT ID','Color Code',
+                  'Slot','Scan List','Receive Group List','PTT Prohibit',
+                  'Reverse','Simplex TDMA','Slot Suit',
+                  'AES Digital Encryption','Digital Encryption',
+                  'Call Confirmation','Talk Around(Simplex)','Work Alone',
+                  'Custom CTCSS','2TONE Decode','Ranging','Through Mode',
+                  'Digi APRS RX','Analog APRS PTT Mode',
+                  'Digital APRS PTT Mode','APRS Report Type',
+                  'Digital APRS Report Channel','Correct Frequency[Hz]',
+                  'SMS Confirmation','Exclude channel from roaming',
+                  'DMR MODE','DataACK Disable','R5toneBot','R5ToneEot'] 
+    channels_out_list = []
+    cnt = 1
+    for channel in channels_dict.keys():
+        row_list = []
+        row_list.append(str(cnt))
+        cnt = cnt + 1
+        row_list.append(channel)
+        for attr in channels_dict[channel]:
+            row_list.append(attr)
+        channels_out_list.append(row_list)
+    channels_out_df = pandas.DataFrame(channels_out_list, columns=header_row)
+
+    # Group channels by Channel Type (analog then digital)
+    channels_out_df.sort_values(by=['Channel Type','Channel Name'], 
+        inplace=True)
+    channels_out_df.reset_index(drop=True, inplace=True)
+
+    # renumber the "No." column to match new order
+    for i in range(len(channels_out_df.index)):
+        channels_out_df.at[i, 'No.'] = i+1
+
+
+    if debug:
+        print("Writing output to: ", channels_export_file)
+    channels_out_df.to_csv(channels_export_file, index=False, 
+        header=True, quoting=csv.QUOTE_ALL, line_terminator='\r\n')
+
+    return
+
+
+
 def cs800d_write_channels_export(channels_dict, channels_export_file, 
         debug=False):
     """This function writes out a CS800D CPS formatted channels file"""
@@ -945,6 +1125,8 @@ def main():
         print("Generating import files for Anytone D878UV")
 
         # define our export file names 
+        zones_output_filename = 'd878uv_zones_{}.csv'.format(isodate)
+        zones_output_file = os.path.join(outputs_dir, zones_output_filename)
         talk_groups_output_filename = 'd878uv_talk_groups_{}.xlsx'.format(
             isodate)
         talk_groups_output_file = os.path.join(outputs_dir, 
@@ -952,6 +1134,13 @@ def main():
         channels_output_filename = 'd878uv_channels_{}.xlsx'.format(isodate)
         channels_output_file = os.path.join(outputs_dir, 
             channels_output_filename) 
+
+        # Write out a Anytone 878 zones import file
+        print("   Zones import file: {}".format(
+            os.path.basename(zones_output_file)))
+        anytone_write_zones_export(zones_dict, zones_order_list, 
+            zones_output_file, channels_dict, debug=False)
+
 
     print("")
     print("All done!")
@@ -962,4 +1151,5 @@ def main():
 # if this file isn't being imported as a module then call ourselves as the main thing...
 if __name__ == "__main__":
    main()
+
 
