@@ -11,6 +11,7 @@ output_files/channels_*.xlsx
 output_files/file_list_*.LST
 output_files/receive_groups_*.csv
 output_files/scan_lists_*.csv
+output_files/talk_groups_*.csv
 output_files/talk_groups_*.xlsx
 output_files/zones_*.csv
 
