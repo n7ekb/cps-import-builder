@@ -1066,7 +1066,7 @@ channels_dict = {}
 rx_groups_dict = {}
 scan_lists_dict = {}
 zones_order_list = []
-supported_cps_targets = ['878','cs800d']
+supported_cps_targets = ['878','cs800d','uv380']
 
 
 def main():
@@ -1177,6 +1177,42 @@ def main():
             digital_repeaters_filename, channels_dict, zones_dict, 
             tg_by_num_dict, tg_by_name_dict, debug=debugflg)
 
+
+    if '878' in args.cps_target:
+
+        print("")
+        print("Generating import files for Anytone D878UV")
+
+        # define our export file names 
+        zones_output_filename = 'd878uv_zones_{}.csv'.format(isodate)
+        zones_output_file = os.path.join(outputs_dir, zones_output_filename)
+        talk_groups_output_filename = 'd878uv_talk_groups_{}.csv'.format(
+            isodate)
+        talk_groups_output_file = os.path.join(outputs_dir, 
+        talk_groups_output_filename)
+        channels_output_filename = 'd878uv_channels_{}.csv'.format(isodate)
+        channels_output_file = os.path.join(outputs_dir, 
+            channels_output_filename) 
+
+        # Write out an Anytone 878 zones import file
+        print("   Zones import file: {}".format(
+            os.path.basename(zones_output_file)))
+        anytone_write_zones_export(zones_dict, zones_order_list, 
+            zones_output_file, channels_dict, debug=False)
+
+        # Write out an Anytone 878 talk groups import file
+        print("   Talk group import file: {}".format(
+            os.path.basename(talk_groups_output_file)))
+        anytone_write_talk_groups_export(tg_by_num_dict, 
+            talk_groups_output_file, debug=False)
+
+        # Write out an Anytone 878 channel import file
+        print("   Channels import file: {}".format(
+            os.path.basename(channels_output_file)))
+        anytone_write_channels_export(channels_dict, 
+            channels_output_file, debug=False)
+   
+
     # Generate import files for Connect Systems CS800D
     if 'cs800d' in args.cps_target:
 
@@ -1204,40 +1240,33 @@ def main():
         cs800d_write_channels_export(channels_dict, 
             channels_output_file, debug=False)
 
-    if '878' in args.cps_target:
+
+    # Generate import files for Tytera MD-UV380/MD-UV390 
+    if 'uv380' in args.cps_target:
 
         print("")
-        print("Generating import files for Anytone D878UV")
+        print("Generating import files for Tytera MD-UV380/MD-UV390")
 
         # define our export file names 
-        zones_output_filename = 'd878uv_zones_{}.csv'.format(isodate)
-        zones_output_file = os.path.join(outputs_dir, zones_output_filename)
-        talk_groups_output_filename = 'd878uv_talk_groups_{}.xlsx'.format(
+        talk_groups_output_filename = 'uv380_talk_groups_{}.csv'.format(
             isodate)
         talk_groups_output_file = os.path.join(outputs_dir, 
         talk_groups_output_filename)
-        channels_output_filename = 'd878uv_channels_{}.xlsx'.format(isodate)
+        channels_output_filename = 'uv380_channels_{}.csv'.format(isodate)
         channels_output_file = os.path.join(outputs_dir, 
             channels_output_filename) 
-
-        # Write out an Anytone 878 zones import file
-        print("   Zones import file: {}".format(
-            os.path.basename(zones_output_file)))
-        anytone_write_zones_export(zones_dict, zones_order_list, 
-            zones_output_file, channels_dict, debug=False)
-
-        # Write out an Anytone 878 talk groups import file
+   
+        # Write out an MD-UV380 talk groups import file
         print("   Talk group import file: {}".format(
             os.path.basename(talk_groups_output_file)))
-        anytone_write_talk_groups_export(tg_by_num_dict, 
-            talk_groups_output_file, debug=False)
-
-        # Write out an Anytone 878 channel import file
+        #uv380_write_talk_groups_export(tg_by_num_dict, 
+        #    talk_groups_output_file, debug=False)
+    
+        # Write out an MD-UV380 channel import file
         print("   Channels import file: {}".format(
             os.path.basename(channels_output_file)))
-        anytone_write_channels_export(channels_dict, 
-            channels_output_file, debug=False)
-    
+        #uv380_write_channels_export(channels_dict, 
+        #    channels_output_file, debug=False)
 
     print("")
     print("All done!")
