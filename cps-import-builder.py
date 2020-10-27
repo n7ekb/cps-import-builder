@@ -107,7 +107,7 @@ import argparse
 #
 #  Key
 #  'Color Code'
-#  'Talk Group'
+#  'Talk Group'     Contact/TG Name 
 #  'Time Slot'
 #  'Call Type'      Group/Private
 #  'TX Permit'      Always, Color Code Free
@@ -288,14 +288,91 @@ def anytone_write_channels_export(channels_dict, channels_export_file,
                   'DMR MODE','DataACK Disable','R5toneBot','R5ToneEot'] 
     channels_out_list = []
     cnt = 1
-    for channel in channels_dict.keys():
+    for ch_name in channels_dict.keys():
+
+        # get channel attributes dictionary
+        attr_dict = channels_dict[ch_name]
+
+        # now fill out this row in correct order for Anytone 878
         row_list = []
         row_list.append(str(cnt))
         cnt = cnt + 1
-        row_list.append(channel)
-        for attr in channels_dict[channel]:
-            row_list.append(attr)
+        row_list.append(ch_name)
+        row_list.append(attr_dict['RX Freq'])   # Receive Frequency
+        row_list.append(attr_dict['TX Freq'])   # Transmit Frequency
+        ch_type = attr_dict['Ch Type']         
+        if ch_type == "Analog":
+            row_list.append("A-Analog")
+        else:
+            row_list.append("D-Digital")        # Channel Type
+        row_list.append(attr_dict['Power'])     # Transmit Power
+        row_list.append(attr_dict['Bandwidth']) # Bandwidth
+        row_list.append(attr_dict['CTCSS Decode'])  # CTCSS/DCS Decode 
+        row_list.append(attr_dict['CTCSS Encode'])  # CTCSS/DCS Encode
+        if ch_type == "Analog":
+            # use fixed items
+            row_list.append("0_Analog")             # Talk Group
+            row_list.append("Group Call")           # Contact Call Type
+            row_list.append("0")                    # Contact TG/DMR ID
+            row_list.append("none")                 # Radio ID
+            row_list.append("0")                    # Busy Lock/TX Permit 
+        else:
+            # use digital channel attributes
+            row_list.append(attr_dict['Talk Group'])# Talk Group
+            row_list.append(attr_dict['Call Type']) # Contact Call Type
+            row_list.append(attr_dict['TG Number']) # Contact TG/DMR ID
+            row_list.append("My_DMR_ID")            # Radio ID
+            row_list.append(attr_dict['TX Permit']) # Busy Lock/TX Permit 
+        row_list.append("Carrier")                  # Squelch Mode 
+        row_list.append("Off")                      # Optional Signal
+        row_list.append("1")                        # DTMF ID 
+        row_list.append("1")                        # 2Tone ID 
+        row_list.append("1")                        # 5Tone ID 
+        row_list.append("Off")                      # PTT ID 
+        if ch_type == "Analog":
+            # use fixed items
+            row_list.append("1")                    # Color Code
+            row_list.append("1")                    # Time Slot
+        else:
+            # use digital channel attributes
+            row_list.append(attr_dict['Color Code'])# Color Code
+            row_list.append(attr_dict['Time Slot']) # Time Slot
+        row_list.append("None")                     # Scan List
+        row_list.append("None")                     # Receive Group List
+        row_list.append(attr_dict['RX Only'])       # PTT Prohibit
+        row_list.append("Off")                      # Reverse 
+        row_list.append("Off")                      # Simplex TDMA
+        row_list.append("Off")                      # TDMA Adaptive
+        row_list.append("Normal Encryption")        # AES Digital Encryption 
+        row_list.append("Off")                      # Digital Encryption 
+        row_list.append("Off")                      # Call Confirmation
+        row_list.append("Off")                      # Talk Around
+        row_list.append("Off")                      # Work Alone
+        row_list.append("251.1")                    # Custom CTCSS
+        row_list.append("1")                        # 2TONE Decode
+        row_list.append("Off")                      # Ranging
+        row_list.append("Off")                      # Through Mode
+        row_list.append("Off")                      # Digi APRS RX 
+        row_list.append("Off")                      # Analog APRS PTT Mode 
+        row_list.append("Off")                      # Digital APRS PTT Mode 
+        row_list.append("Off")                      # APRS Report Type 
+        row_list.append("1")                # Digtial APRS Report Channel 
+        row_list.append("0")                        # Correct Frequency[Hz] 
+        row_list.append("Off")                      # SMS Confirmation
+        row_list.append("0")                # Exclude channel from roaming
+        # calculate DMR Mode
+        if (attr_dict['RX Freq'] == attr_dict['TX Freq']):
+            # assume simplex mode
+            row_list.append(0)
+        else:
+            row_list.append(1)
+        row_list.append("0")                        # DataACK Disable
+        row_list.append("0")                        # R5toneBot
+        row_list.append("0")                        # R5ToneEot
+
+        # now add this row to the channels list
         channels_out_list.append(row_list)
+
     channels_out_df = pandas.DataFrame(channels_out_list, columns=header_row)
 
     # Group channels by Channel Type (analog then digital)
@@ -838,8 +915,11 @@ def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name,
                  'TX Freq':ch_tx_freq, 
                  'Power':ch_tx_pwr,
                  'Bandwidth':ch_bandwidth,
+                 'CTCSS Decode':"Off",
+                 'CTCSS Encode':"Off",
                  'Color Code':ch_color_code,
                  'Talk Group':ch_contact,
+                 'TG Number':tg_by_name_dict[ch_contact],
                  'Time Slot':ch_slot,
                  'Call Type':ch_call_type,
                  'TX Permit':ch_tx_permit,
@@ -943,8 +1023,11 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
                     'TX Freq':ch_tx_freq, 
                     'Power':ch_tx_power,
                     'Bandwidth':"12.5",
+                    'CTCSS Decode':"Off",
+                    'CTCSS Encode':"Off",
                     'Color Code':ch_color_code,
                     'Talk Group':tg_name,
+                    'TG Number':tg_by_name_dict[tg_name],
                     'Time Slot':ch_slot,
                     'Call Type':"Group Call",
                     'TX Permit':"Color Code Free",
@@ -1137,12 +1220,24 @@ def main():
         channels_output_file = os.path.join(outputs_dir, 
             channels_output_filename) 
 
-        # Write out a Anytone 878 zones import file
+        # Write out an Anytone 878 zones import file
         print("   Zones import file: {}".format(
             os.path.basename(zones_output_file)))
         anytone_write_zones_export(zones_dict, zones_order_list, 
             zones_output_file, channels_dict, debug=False)
 
+        # Write out an Anytone 878 talk groups import file
+        print("   Talk group import file: {}".format(
+            os.path.basename(talk_groups_output_file)))
+        anytone_write_talk_groups_export(tg_by_num_dict, 
+            talk_groups_output_file, debug=False)
+
+        # Write out an Anytone 878 channel import file
+        print("   Channels import file: {}".format(
+            os.path.basename(channels_output_file)))
+        anytone_write_channels_export(channels_dict, 
+            channels_output_file, debug=False)
+    
 
     print("")
     print("All done!")
