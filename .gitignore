@@ -6,9 +6,12 @@ input_data_files/Talkgroups__*
 input_data_files/Zone_Order.csv
 
 # ignore output files
+output_files/d868uv_channels_*.csv
 output_files/d878uv_channels_*.csv
 output_files/cs800d_channels_*.xlsx
+output_files/d868uv_talk_groups_*.csv
 output_files/d878uv_talk_groups_*.csv
 output_files/cs800d_talk_groups_*.xlsx
+output_files/d868uv_zones_*.csv
 output_files/d878uv_zones_*.csv
 
