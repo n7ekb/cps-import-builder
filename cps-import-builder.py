@@ -138,14 +138,16 @@ cdcss_list = ['D023N','D025N','D026N','D031N','D032N','D043N','D047N','D051N',
 
 
 def anytone_write_zones_export(zones_dict, zones_order_list, 
-        zones_export_file, channels_dict, debug=False):
+        zones_export_file, channels_dict, model, debug=False):
     """This function writes out an Anytone D878 zones import/export file"""
 
     if debug:
             print("Preparing Zones Export File...")
             
     # Create a dataframe from the zones dict 
-    header_row = ['No.','Zone Name','Zone Channel Member',
+    header_row_868 = ['No.','Zone Name','Zone Channel Member',
+                  'A Channel','B Channel']
+    header_row_878 = ['No.','Zone Name','Zone Channel Member',
                   'Zone Channel Member RX Frequency',
                   'Zone Channel Member TX Frequency',
                   'A Channel','A Channel RX Frequency',
@@ -169,24 +171,27 @@ def anytone_write_zones_export(zones_dict, zones_order_list,
         if debug:
             print("   Member string: '{}'".format(member_str))
         row_list.append(member_str)
+       
+        if model == "878":
+            # build Zone Channel Rx Freq string
+            rx_freq_str = '|'.join(zones_dict[zone_name][1])
+            row_list.append(rx_freq_str)
         
-        # build Zone Channel Rx Freq string
-        rx_freq_str = '|'.join(zones_dict[zone_name][1])
-        row_list.append(rx_freq_str)
-        
-        # build Zone Channel Tx Freq string
-        tx_freq_str = '|'.join(zones_dict[zone_name][2])
-        row_list.append(tx_freq_str)
+            # build Zone Channel Tx Freq string
+            tx_freq_str = '|'.join(zones_dict[zone_name][2])
+            row_list.append(tx_freq_str)
         
         # now use first member channel info as the "A" & "B" VFO default
         first_member_name = zones_dict[zone_name][0][0]
         attr_dict = channels_dict[first_member_name]
         row_list.append(first_member_name)
-        row_list.append(attr_dict['RX Freq'])
-        row_list.append(attr_dict['TX Freq'])
+        if model == "878":
+            row_list.append(attr_dict['RX Freq'])
+            row_list.append(attr_dict['TX Freq'])
         row_list.append(first_member_name)
-        row_list.append(attr_dict['RX Freq'])
-        row_list.append(attr_dict['TX Freq'])
+        if model == "878":
+            row_list.append(attr_dict['RX Freq'])
+            row_list.append(attr_dict['TX Freq'])
         zones_out_dict.update({zone_name:row_list})
         if zone_name not in zones_order_list:
             zones_not_ordered_list.append(row_list)
@@ -207,7 +212,10 @@ def anytone_write_zones_export(zones_dict, zones_order_list,
         zones_out_list.append(zones_not_ordered_list[i])
     
     # Output our Zones dataframe
-    zones_out_df = pandas.DataFrame(zones_out_list, columns=header_row)
+    if model == "868":
+        zones_out_df = pandas.DataFrame(zones_out_list, columns=header_row_868)
+    else:
+        zones_out_df = pandas.DataFrame(zones_out_list, columns=header_row_878)
     
     # renumber the "No." column to match new order
     for i in range(len(zones_out_df.index)):
@@ -266,11 +274,25 @@ def anytone_write_talk_groups_export(talk_groups_dict,
 
 
 def anytone_write_channels_export(channels_dict, channels_export_file, 
-        debug=False):
+        model, debug=False):
     """This function writes out an Anytone D878 channels import/export file"""
-    
-    # Create a dataframe from the channels dict and output it...
-    header_row = ['No.','Channel Name','Receive Frequency',
+   
+    # Header for Anytone 868
+    header_row_868 = ['No.','Channel Name','Receive Frequency',
+                  'Transmit Frequency','Channel Type','Transmit Power',
+                  'Band Width','CTCSS/DCS Decode','CTCSS/DCS Encode',
+                  'Contact','Contact Call Type','Radio ID',
+                  'Busy Lock/TX Permit','Squelch Mode','Optional Signal',
+                  "DTMF ID",'2Tone ID','5Tone ID','PTT ID','Color Code',
+                  'Slot','CH Scan List','Receive Group List','TX Prohibit',
+                  'Reverse','Simplex TDMA','TDMA Adaptive',
+                  'Encryption Type','Digital Encryption',
+                  'Call Confirmation','Talk Around','Work Alone',
+                  'Custom CTCSS','2TONE Decode','Ranging','Through Mode',
+                  'APRS Report','APRS Report Channel'] 
+
+    # Header for Anytone 878
+    header_row_878 = ['No.','Channel Name','Receive Frequency',
                   'Transmit Frequency','Channel Type','Transmit Power',
                   'Band Width','CTCSS/DCS Decode','CTCSS/DCS Encode',
                   'Contact','Contact Call Type','Contact TG/DMR ID','Radio ID',
@@ -286,6 +308,8 @@ def anytone_write_channels_export(channels_dict, channels_export_file,
                   'Digital APRS Report Channel','Correct Frequency[Hz]',
                   'SMS Confirmation','Exclude channel from roaming',
                   'DMR MODE','DataACK Disable','R5toneBot','R5ToneEot'] 
+
+    # Create a dataframe from the channels dict and output it...
     channels_out_list = []
     cnt = 1
     for ch_name in channels_dict.keys():
@@ -313,14 +337,16 @@ def anytone_write_channels_export(channels_dict, channels_export_file,
             # use fixed items
             row_list.append("0_Analog")             # Talk Group
             row_list.append("Group Call")           # Contact Call Type
-            row_list.append("0")                    # Contact TG/DMR ID
+            if model == "878":
+                row_list.append("0")                # Contact TG/DMR ID
             row_list.append("none")                 # Radio ID
             row_list.append("0")                    # Busy Lock/TX Permit 
         else:
             # use digital channel attributes
             row_list.append(attr_dict['Talk Group'])# Talk Group
             row_list.append(attr_dict['Call Type']) # Contact Call Type
-            row_list.append(attr_dict['TG Number']) # Contact TG/DMR ID
+            if model == "878":
+                row_list.append(attr_dict['TG Number']) # Contact TG/DMR ID
             row_list.append("My_DMR_ID")            # Radio ID
             row_list.append(attr_dict['TX Permit']) # Busy Lock/TX Permit 
         row_list.append("Carrier")                  # Squelch Mode 
@@ -352,28 +378,38 @@ def anytone_write_channels_export(channels_dict, channels_export_file,
         row_list.append("1")                        # 2TONE Decode
         row_list.append("Off")                      # Ranging
         row_list.append("Off")                      # Through Mode
-        row_list.append("Off")                      # Digi APRS RX 
-        row_list.append("Off")                      # Analog APRS PTT Mode 
-        row_list.append("Off")                      # Digital APRS PTT Mode 
-        row_list.append("Off")                      # APRS Report Type 
-        row_list.append("1")                # Digtial APRS Report Channel 
-        row_list.append("0")                        # Correct Frequency[Hz] 
-        row_list.append("Off")                      # SMS Confirmation
-        row_list.append("0")                # Exclude channel from roaming
-        # calculate DMR Mode
-        if (attr_dict['RX Freq'] == attr_dict['TX Freq']):
-            # assume simplex mode
-            row_list.append(0)
+
+        if model == "868":
+           row_list.append("Off")                   # APRS Report
+           row_list.append("1")                     # APRS Channel
         else:
-            row_list.append(1)
-        row_list.append("0")                        # DataACK Disable
-        row_list.append("0")                        # R5toneBot
-        row_list.append("0")                        # R5ToneEot
+            row_list.append("Off")                  # Digi APRS RX 
+            row_list.append("Off")                  # Analog APRS PTT Mode 
+            row_list.append("Off")                  # Digital APRS PTT Mode 
+            row_list.append("Off")                  # APRS Report Type 
+            row_list.append("1")                # Digtial APRS Report Channel 
+            row_list.append("0")                    # Correct Frequency[Hz] 
+            row_list.append("Off")                  # SMS Confirmation
+            row_list.append("0")                # Exclude channel from roaming
+            # calculate DMR Mode
+            if (attr_dict['RX Freq'] == attr_dict['TX Freq']):
+                # assume simplex mode
+                row_list.append(0)
+            else:
+                row_list.append(1)
+            row_list.append("0")                    # DataACK Disable
+            row_list.append("0")                    # R5toneBot
+            row_list.append("0")                    # R5ToneEot
 
         # now add this row to the channels list
         channels_out_list.append(row_list)
 
-    channels_out_df = pandas.DataFrame(channels_out_list, columns=header_row)
+    if model == "868":
+        channels_out_df = pandas.DataFrame(channels_out_list, 
+                            columns=header_row_868)
+    else:
+        channels_out_df = pandas.DataFrame(channels_out_list, 
+                            columns=header_row_878)
 
     # Group channels by Channel Type (analog then digital)
     channels_out_df.sort_values(by=['Channel Type','Channel Name'], 
@@ -1066,7 +1102,7 @@ channels_dict = {}
 rx_groups_dict = {}
 scan_lists_dict = {}
 zones_order_list = []
-supported_cps_targets = ['878','cs800d','uv380']
+supported_cps_targets = ['868','878','cs800d','uv380']
 
 
 def main():
@@ -1177,6 +1213,39 @@ def main():
             digital_repeaters_filename, channels_dict, zones_dict, 
             tg_by_num_dict, tg_by_name_dict, debug=debugflg)
 
+    if '868' in args.cps_target:
+
+        print("")
+        print("Generating import files for Anytone D868UV")
+
+        # define our export file names 
+        zones_output_filename = 'd868uv_zones_{}.csv'.format(isodate)
+        zones_output_file = os.path.join(outputs_dir, zones_output_filename)
+        talk_groups_output_filename = 'd868uv_talk_groups_{}.csv'.format(
+            isodate)
+        talk_groups_output_file = os.path.join(outputs_dir, 
+        talk_groups_output_filename)
+        channels_output_filename = 'd868uv_channels_{}.csv'.format(isodate)
+        channels_output_file = os.path.join(outputs_dir, 
+            channels_output_filename) 
+
+        # Write out an Anytone 868 zones import file
+        print("   Zones import file: {}".format(
+            os.path.basename(zones_output_file)))
+        anytone_write_zones_export(zones_dict, zones_order_list, 
+            zones_output_file, channels_dict, model="868", debug=False)
+
+        # Write out an Anytone 868 talk groups import file
+        print("   Talk group import file: {}".format(
+            os.path.basename(talk_groups_output_file)))
+        anytone_write_talk_groups_export(tg_by_num_dict, 
+            talk_groups_output_file, debug=False)
+
+        # Write out an Anytone 868 channel import file
+        print("   Channels import file: {}".format(
+            os.path.basename(channels_output_file)))
+        anytone_write_channels_export(channels_dict, 
+            channels_output_file, model="868", debug=False)
 
     if '878' in args.cps_target:
 
@@ -1198,7 +1267,7 @@ def main():
         print("   Zones import file: {}".format(
             os.path.basename(zones_output_file)))
         anytone_write_zones_export(zones_dict, zones_order_list, 
-            zones_output_file, channels_dict, debug=False)
+            zones_output_file, channels_dict, model="878", debug=False)
 
         # Write out an Anytone 878 talk groups import file
         print("   Talk group import file: {}".format(
@@ -1210,7 +1279,7 @@ def main():
         print("   Channels import file: {}".format(
             os.path.basename(channels_output_file)))
         anytone_write_channels_export(channels_dict, 
-            channels_output_file, debug=False)
+            channels_output_file, model="878", debug=False)
    
 
     # Generate import files for Connect Systems CS800D
