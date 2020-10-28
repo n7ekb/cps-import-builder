@@ -468,6 +468,7 @@ def cs800d_write_channels_export(channels_dict, channels_export_file,
     # setup analog channels dataframe
     analog_channels_out_list = []
     cnt = 1
+    total_channel_cnt = 0
     for ch_name in sorted(channels_dict.keys()):
         ch_type = channels_dict[ch_name]['Ch Type']
         
@@ -567,6 +568,13 @@ def cs800d_write_channels_export(channels_dict, channels_export_file,
         # now add the row for this channel to our analog channels list
         analog_channels_out_list.append(row_list)
         
+        # Need to ensure max channel count isn't reached
+        total_channel_cnt += 1
+        if total_channel_cnt > 2000:
+            print("   ERROR:  Maximum channel count (2000) exceeded.")
+            print("Aborting...")
+            sys.exit(-1)
+
     # create the analog channels data frame   
     analog_channels_out_df = pandas.DataFrame(analog_channels_out_list, 
                                               columns=analog_header_row)
@@ -651,6 +659,13 @@ def cs800d_write_channels_export(channels_dict, channels_export_file,
         
         # now add the row for this channel to our digital channels list
         digital_channels_out_list.append(row_list)
+
+        # Need to ensure max channel count isn't reached
+        total_channel_cnt += 1
+        if total_channel_cnt > 2000:
+            print("   ERROR:  Maximum channel count (2000) exceeded.")
+            print("Aborting...")
+            sys.exit(-1)
         
     # create the digital channels data frame   
     digital_channels_out_df = pandas.DataFrame(digital_channels_out_list, 
