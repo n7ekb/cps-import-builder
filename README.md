@@ -19,12 +19,12 @@ cases the Zones across each of your radios without manual editing.
 You maintain one set of definition files, and can target the 
 following supported CPS software packages:
 
+* Anytone AT-D868UV CPS Version 1.35
 * Anytone AT-D878UV CPS Version 1.21
 * Connect Systems CS800D CPS Version R4.03.07
 
 Future support planned:
 
-* Anytone AT-D868UV CPS Version 1.35
 * Tytera MD-UV380/MD-UV390
 * CHIRP (for analog channels)
 
@@ -301,7 +301,7 @@ Here is the usage message from the current script:
 
 ```
 CPS Import File Builder
-Supported CPS targets: ['878', 'cs800d']
+Supported CPS targets: ['868, '878', 'cs800d']
 Source: https://github.com/n7ekb/cps-import-builder
 
 usage: cps-import-builder.py [-h] --cps CPS_TARGET [--inputdir INPUTDIR]
