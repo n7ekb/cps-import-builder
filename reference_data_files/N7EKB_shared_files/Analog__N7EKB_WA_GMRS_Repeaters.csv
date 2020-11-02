@@ -1,0 +1,4 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+WA GMRS Rptrs,OlyCom1 462.675,25K,High,462.675,467.675,100.0,100.0,On
+WA GMRS Rptrs,OlyCom3 462.625,25K,High,462.625,467.625,Off,141.3,Off
+WA GMRS Rptrs,WIDHIL 462.550,25K,High,462.550,467.550,Off,Off,Off
