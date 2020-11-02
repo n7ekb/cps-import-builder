@@ -1,0 +1,9 @@
+Zone,Channel Name,Power,RX Freq,TX Freq,Color Code,Talk Group,TimeSlot,Call Type,TX Permit
+WA Ocean Shores,CapPk Local 1,Turbo,440.7125,445.7125,1,Local 1,1,Group Call,Same Color Code
+WA Ocean Shores,CapPk Local 2,Turbo,440.7125,445.7125,1,Local 2,2,Group Call,Same Color Code
+WA Ocean Shores,CapPk Parrot,Turbo,440.7125,445.7125,1,Parrot,1,Group Call,Same Color Code
+WA Ocean Shores,CapPk PNWR,Turbo,440.7125,445.7125,1,PNWR,2,Group Call,Same Color Code
+WA Ocean Shores,BawFaw Local 1,Turbo,146.5,147.5,1,Local 1,1,Group Call,Same Color Code
+WA Ocean Shores,BawFaw Local 2,Turbo,146.5,147.5,1,Local 2,2,Group Call,Same Color Code
+WA Ocean Shores,BawFaw Parrot,Turbo,146.5,147.5,1,Parrot,1,Group Call,Same Color Code
+WA Ocean Shores,BawFaw PNWR,Turbo,146.5,147.5,1,PNWR,2,Group Call,Same Color Code

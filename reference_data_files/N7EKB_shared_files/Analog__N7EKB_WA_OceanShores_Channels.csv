@@ -1,0 +1,20 @@
+Zone,Channel Name,Bandwidth,Power,RX Freq,TX Freq,CTCSS Decode,CTCSS Encode,TX Prohibit
+WA Ocean Shores,Aberdeen 147.160,25K,Turbo,147.16,147.76,88.5,88.5,Off
+WA Ocean Shores,OcnShore 444.200,25K,Turbo,444.2,449.2,Off,118.8,Off
+WA Ocean Shores,OcnShore 441.125,25K,Turbo,441.125,446.125,Off,123,Off
+WA Ocean Shores,ConvCtr 467.7625,12.5K,Low,467.7625,467.7625,Off,Off,On
+WA Ocean Shores,ConvCtr 467.8125,12.5K,Low,467.8125,467.8125,Off,Off,On
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,
+,,,,,,,,

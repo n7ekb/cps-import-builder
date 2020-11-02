@@ -1,0 +1,18 @@
+Zone,Channel Name,Power,RX Freq,TX Freq,Color Code,Talk Group,TimeSlot,Call Type,TX Permit
+FL Orlando,W4MCO FL State,Turbo,443.1625,448.1625,11,3112_FL State,2,Group Call,Same Color Code
+FL Orlando,W4MCO Local 2,Turbo,443.1625,448.1625,11,2_Europe/Loc,2,Group Call,Same Color Code
+FL Orlando,W4MCO OR State,Turbo,443.1625,448.1625,11,OR State,1,Group Call,Same Color Code
+FL Orlando,W4MCO PNWR,Turbo,443.1625,448.1625,11,PNWR,1,Group Call,Same Color Code
+FL Orlando,W4MCO USA-Wide,Turbo,443.1625,448.1625,11,USA-wide,1,Group Call,Same Color Code
+FL Orlando,W4MCO WA State,Turbo,443.1625,448.1625,11,WA State,1,Group Call,Same Color Code
+FL Orlando,WD4WDW Disney,Turbo,444,449,3,347639_Disney,2,Group Call,Same Color Code
+FL Orlando,WD4WDW FL FCDMR,Turbo,444,449,3,31121_FL FCDMR,1,Group Call,Same Color Code
+FL Orlando,WD4WDW FL State,Turbo,444,449,3,3112_FL State,1,Group Call,Same Color Code
+FL Orlando,WD4WDW Local 9,Turbo,444,449,3,9_Local/Ref,2,Group Call,Same Color Code
+FL Orlando,WD4WDW NA,Turbo,444,449,3,3_NA,1,Group Call,Same Color Code
+FL Orlando,WD4WDW NY-Metro,Turbo,444,449,3,444_NY-Metro,2,Group Call,Same Color Code
+FL Orlando,WD4WDW Parrot,Turbo,444,449,3,Parrot,1,Private Call,Same Color Code
+FL Orlando,WD4WDW SouthE,Turbo,444,449,3,3174_Southeast,1,Group Call,Same Color Code
+FL Orlando,WD4WDW TAC 310,Turbo,444,449,3,TAC 310,1,Group Call,Same Color Code
+FL Orlando,WD4WDW WW Eng,Turbo,444,449,3,13_WW English,1,Group Call,Same Color Code
+FL Orlando,WD4WDW WW TG 1,Turbo,444,449,3,1_WW,1,Group Call,Same Color Code
