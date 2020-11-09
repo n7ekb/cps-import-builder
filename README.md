@@ -14,7 +14,7 @@ these independent definition files to suitably-formatted import
 files for use by your manufacturer's CPS software.
 
 If you have radios from different manufacturers this tool may
-allow you to synchronize the Talk Groups, Channels, and in many
+allow you to synchronize the Talk Groups, Channels, and in some
 cases the Zones across each of your radios without manual editing.
 You maintain one set of definition files, and can target the 
 following supported CPS software packages:
@@ -22,10 +22,10 @@ following supported CPS software packages:
 * Anytone AT-D868UV CPS Version 1.35
 * Anytone AT-D878UV CPS Version 1.21
 * Connect Systems CS800D CPS Version R4.03.07
+* Tytera MD-UV380/MD-UV390
 
 Future support planned:
 
-* Tytera MD-UV380/MD-UV390
 * CHIRP (for analog channels)
 
 
@@ -301,20 +301,24 @@ Here is the usage message from the current script:
 
 ```
 CPS Import File Builder
-Supported CPS targets: ['868, '878', 'cs800d']
+Supported CPS targets: ['868', '878', 'cs800d', 'uv380']
 Source: https://github.com/n7ekb/cps-import-builder
 
 usage: cps-import-builder.py [-h] --cps CPS_TARGET [--inputdir INPUTDIR]
-                             [--outputdir OUTPUTDIR] [--debugmode]
+                             [--outputdir OUTPUTDIR]
+                             [--zone_order_file ZONE_ORDER_FILE] [--debugmode]
 
 optional arguments:
-  -h, --help            show this help message and exit
-  --cps CPS_TARGET      specify CPS target; multiple targets allowed, or use
-                        special target "all" to generate files for all
-                        supported targets
-  --inputdir INPUTDIR   specify directory containing input files
-  --outputdir OUTPUTDIR specify directory for output files
-  --debugmode           set the debug flag for troubleshooting
+  -h, --help             show this help message and exit
+  --cps CPS_TARGET       specify CPS target; multiple targets allowed, or use
+                         special target "all" to generate files for all
+                         supported targets
+  --inputdir INPUTDIR    specify directory containing input files
+  --outputdir OUTPUTDIR  specify directory for output files
+  --zone_order_file ZONE_ORDER_FILE
+                         specify file to control zone order. Only useful for
+                         CPS targets that support zone file import/export
+  --debugmode            set the debug flag for troubleshooting
 
 ```
 
@@ -328,4 +332,5 @@ directory to see an example of the suggested naming convention and file format.
 GitHub pull requests for new content are greatly appreciated!
 
 Be sure to checkout the open issues and see if you can help out with any
-of them.
+of them.  If you have an idea for a new feature or improvement, please 
+file an issue.
