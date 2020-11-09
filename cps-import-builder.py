@@ -1080,12 +1080,16 @@ def main():
     parser.add_argument('--outputdir',
         help='specify directory for output files',
         required=False, default='./output_files')
+    parser.add_argument('--zone_order_file',
+        help="specify file to control zone order. Only useful for CPS targets that support zone file import/export",
+        required=False, default='')
     parser.add_argument('--debugmode',
         help='set the debug flag for troubleshooting', required=False,
         action='store_true')
 
     # parse the command line
     args = parser.parse_args()
+    zone_order_filespec = args.zone_order_file
     debugflg = args.debugmode
 
     # sanity check --cps target(s)
@@ -1107,10 +1111,13 @@ def main():
     print("Putting output files in: '{}'.".format(outputs_dir))
 
     # Read in Zone Order file
-    zone_order_filespec = os.path.join(inputs_dir, "Zone_Order.csv")
-    print("Reading Zone Order file: {}".format(
-        os.path.basename(zone_order_filespec)))
-    zones_order_list = read_zone_order_file(zone_order_filespec, debug=debugflg)
+    if zone_order_filespec != '':
+        print("Reading Zone Order file: {}".format(
+            os.path.basename(zone_order_filespec)))
+        zones_order_list = read_zone_order_file(zone_order_filespec, 
+            debug=debugflg)
+    else:
+        zones_order_list = []
 
     # Add talk groups from K7ABD Talkgroups__ files
     talkgroups_filespec = os.path.join(inputs_dir, 'Talkgroups__*')
