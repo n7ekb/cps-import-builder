@@ -871,6 +871,7 @@ def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name,
         else:
             # Bad day...
             print("ERROR: Undefined talk group: '{}'".format(tg_name))
+            sys.exit(-1)
         ch_contact = tg_name
 
         # get channel attributes
