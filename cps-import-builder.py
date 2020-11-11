@@ -680,8 +680,31 @@ def read_zone_order_file(file_path, debug=False):
 
 
 
+def read_tg_filter_file(file_path, debug=False):
+    """This function reads talkgroup filter .csv file and builds the tg_filter_dict."""
+
+    # read in the talk group filter .csv file
+    if debug:
+        print("Processing: {}".format(file_path))
+    talk_group_filter_df = pandas.read_csv(file_path)
+
+    # loop through file rows
+    tg_filter_list = []
+    for i,row in talk_group_filter_df.iterrows():
+
+        # get talk group name 
+        tg_name = row['TG Name']
+        tg_filter_list.append(tg_name)
+
+    if debug:
+        print("   Returning tg_filter_list: {}".format(tg_filter_list))
+
+    return tg_filter_list
+
+
+
 def add_channel_to_zone(zone_name, channel_name, zones_dict,
-        channels_dict, debug=False):
+        channels_dict, debug=False): 
     """This function adds a channel to our zone dictionary."""
 
     # get the channel's rx & tx frequencies
@@ -922,7 +945,7 @@ def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name,
 
 def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
         channels_dict, zones_dict, tg_by_num_dict, tg_by_name_dict,
-        debug=False):
+        tg_filter_list, debug=False):
 
     # read in the k7abd digital repeaters file
     if debug:
@@ -930,7 +953,19 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
     k7abd_df = pandas.read_csv(k7abd_digital_file_name)
     k7abd_df['Comment'].fillna('none', inplace=True)
 
-    # loop through k7abd repeaters file rows
+    # build talk groups list from column headings
+    talk_group_list = []
+    column_items = k7abd_df.columns
+    for item in column_items:
+        if item not in ['Zone Name','Comment','Power',
+                        'RX Freq','TX Freq','Color Code']:
+            # filter out talk groups in filter list
+            if item in tg_filter_list:
+                pass
+            else:
+                talk_group_list.append(item)
+
+    # loop through k7abd repeaters file rows - each row is a repeater
     for i,row in k7abd_df.iterrows():
 
         # pull out channel prefix
@@ -938,6 +973,7 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
         zone_name_list = zone_name.split(';')
         zone_name = zone_name_list[0]
         ch_prefix = zone_name_list[1]
+        ch_prefix = ch_prefix.lower()
         if debug:
             print("   Working on Zone: ", zone_name)
 
@@ -956,25 +992,17 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
 
         # Now loop through rest of columns in k7abd repeaters file and create
         # a channel for each talk group represented that has a slot specified..
-        talk_groups = []
-        column_items = k7abd_df.columns
-        for item in column_items:
-            if item not in ['Zone Name','Comment','Power',
-                             'RX Freq','TX Freq','Color Code']:
-                talk_groups.append(item)
+        repeater_channel_dict = {}
+        for tg_name in talk_group_list:
 
-        for item in talk_groups:
-
-            # Set talk group name to 1st part of column heading
-            # if ';' present in the K7ABD file
-            item_list = item.split(';')
-            tg_name = item_list[0]
-
-            ch_slot = row[item]
-            if ch_slot not in ['1','2']:
-               # this talk group not on this repeater, so
-               # don't create a channel for it...
-               pass
+            # get the talk group's slot
+            ch_slot = row[tg_name]
+            
+            valid_slot_list = ['1','2']
+            if ch_slot not in valid_slot_list:
+                # this talk group not on this repeater, so
+                # don't create a channel for it...
+                continue
 
             # fix tg_name value - map if needed
             if tg_name in tg_by_name_dict.keys():
@@ -1017,9 +1045,13 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
                     'RX Only':"Off"
                     }})
 
-            # add this channel to the specified zone
-            add_channel_to_zone(zone_name, ch_name, zones_dict,
-                channels_dict, debug=False)
+            # collect this channel and the specified zone
+            repeater_channel_dict.update({ch_name:zone_name})
+            
+        # Now sort the channels; add them to the zones
+        for ch_name in sorted(repeater_channel_dict.keys()):
+            add_channel_to_zone(repeater_channel_dict[ch_name], ch_name,
+                    zones_dict, channels_dict, debug=False)
 
     # clean-up
     del k7abd_df
@@ -1084,6 +1116,9 @@ def main():
     parser.add_argument('--zone_order_file',
         help="specify file to control zone order. Only useful for CPS targets that support zone file import/export",
         required=False, default='')
+    parser.add_argument('--tg_filter',
+        help="set the tg_filter flag; the file 'Digital-Repeaters__MyTalkgroups.csv must be present in the input files directory when this flag set",
+        required=False, action='store_true')
     parser.add_argument('--debugmode',
         help='set the debug flag for troubleshooting', required=False,
         action='store_true')
@@ -1091,6 +1126,7 @@ def main():
     # parse the command line
     args = parser.parse_args()
     zone_order_filespec = args.zone_order_file
+    tg_filter_flg = args.tg_filter
     debugflg = args.debugmode
 
     # sanity check --cps target(s)
@@ -1111,7 +1147,7 @@ def main():
     outputs_dir = args.outputdir
     print("Putting output files in: '{}'.".format(outputs_dir))
 
-    # Read in Zone Order file
+    # Read in optional Zone Order file
     if zone_order_filespec != '':
         print("Reading Zone Order file: {}".format(
             os.path.basename(zone_order_filespec)))
@@ -1119,6 +1155,23 @@ def main():
             debug=debugflg)
     else:
         zones_order_list = []
+
+    # Read in optional talk group filter file
+    if tg_filter_flg:
+        tg_filter_filename = 'Digital-Repeaters-MyTalkgroups.csv'
+        tg_filter_filespec = os.path.join(inputs_dir, tg_filter_filename)
+        # sanity check - file must be present
+        if not os.path.exists(tg_filter_filespec):
+            print("ERROR:  option --tg_filter set, but filter file not found!")
+            print("        (file '{}' must exist)".format(tg_filter_filespec))
+            sys.exit(-1)
+        else:
+            print("Reading Talk Group Filter file: {}".format(
+                os.path.basename(tg_filter_filespec)))
+        tg_filter_list = read_tg_filter_file(tg_filter_filespec, 
+            debug=debugflg)
+    else:
+        tg_filter_list = []
 
     # Add talk groups from K7ABD Talkgroups__ files
     talkgroups_filespec = os.path.join(inputs_dir, 'Talkgroups__*')
@@ -1165,7 +1218,8 @@ def main():
             os.path.basename(digital_repeaters_filename)))
         add_channels_fm_k7abd_digital_repeaters_file(
             digital_repeaters_filename, channels_dict, zones_dict,
-            tg_by_num_dict, tg_by_name_dict, debug=debugflg)
+            tg_by_num_dict, tg_by_name_dict, tg_filter_list, 
+            debug=debugflg)
 
     if '868' in args.cps_target:
 
