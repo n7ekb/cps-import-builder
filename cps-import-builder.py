@@ -996,7 +996,7 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
         for tg_name in talk_group_list:
 
             # get the talk group's slot
-            ch_slot = row[tg_name]
+            ch_slot = str(row[tg_name])
             
             valid_slot_list = ['1','2']
             if ch_slot not in valid_slot_list:
