@@ -681,7 +681,7 @@ def read_zone_order_file(file_path, debug=False):
 
 
 def read_tg_filter_file(file_path, debug=False):
-    """This function reads talkgroup filter .csv file and builds the tg_filter_dict."""
+    """This function reads a talkgroup filter .csv file and builds the tg_filter_list."""
 
     # read in the talk group filter .csv file
     if debug:
@@ -700,6 +700,29 @@ def read_tg_filter_file(file_path, debug=False):
         print("   Returning tg_filter_list: {}".format(tg_filter_list))
 
     return tg_filter_list
+
+
+
+def read_rptr_filter_file(file_path, debug=False):
+    """This function reads a repeater filter .csv file and builds the rptr_filter_list."""
+
+    # read in the repeater filter .csv file
+    if debug:
+        print("Processing: {}".format(file_path))
+    rptr_filter_df = pandas.read_csv(file_path)
+
+    # loop through file rows
+    rptr_filter_list = []
+    for i,row in rptr_filter_df.iterrows():
+
+        # get talk group name 
+        rptr_name = row['Repeater Name']
+        rptr_filter_list.append(rptr_name)
+
+    if debug:
+        print("   Returning rptr_filter_list: {}".format(rptr_filter_list))
+
+    return rptr_filter_list
 
 
 
@@ -945,7 +968,7 @@ def add_channels_fm_k7abd_digital_others_file(k7abd_digital_others_file_name,
 
 def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
         channels_dict, zones_dict, tg_by_num_dict, tg_by_name_dict,
-        tg_filter_list, debug=False):
+        tg_filter_list, rptr_filter_list, debug=False):
 
     # read in the k7abd digital repeaters file
     if debug:
@@ -968,12 +991,17 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
     # loop through k7abd repeaters file rows - each row is a repeater
     for i,row in k7abd_df.iterrows():
 
-        # pull out channel prefix
+        # Get repeater name (zone name) and pull out channel prefix
         zone_name = row['Zone Name']
         zone_name_list = zone_name.split(';')
         zone_name = zone_name_list[0]
         ch_prefix = zone_name_list[1]
         ch_prefix = ch_prefix.lower()
+         
+        # Short circuit if repeater is in rptr_filter_list
+        if zone_name in rptr_filter_list:
+            continue
+
         if debug:
             print("   Working on Zone: ", zone_name)
 
@@ -1117,7 +1145,10 @@ def main():
         help="specify file to control zone order. Only useful for CPS targets that support zone file import/export",
         required=False, default='')
     parser.add_argument('--tg_filter',
-        help="set the tg_filter flag; the file 'Digital-Repeaters__MyTalkgroups.csv must be present in the input files directory when this flag set",
+        help="set the tg_filter flag; the file 'Digital-Repeaters-MyTalkgroups.csv must be present in the input files directory when this flag set",
+        required=False, action='store_true')
+    parser.add_argument('--rptr_filter',
+        help="set the rptr_filter flag; the file 'Digital-Repeaters-MyRepeaters.csv must be present in the input files directory when this flag set",
         required=False, action='store_true')
     parser.add_argument('--debugmode',
         help='set the debug flag for troubleshooting', required=False,
@@ -1127,6 +1158,7 @@ def main():
     args = parser.parse_args()
     zone_order_filespec = args.zone_order_file
     tg_filter_flg = args.tg_filter
+    rptr_filter_flg = args.rptr_filter
     debugflg = args.debugmode
 
     # sanity check --cps target(s)
@@ -1173,6 +1205,23 @@ def main():
     else:
         tg_filter_list = []
 
+    # Read in optional repeater filter file
+    if rptr_filter_flg:
+        rptr_filter_filename = 'Digital-Repeaters-MyRepeaters.csv'
+        rptr_filter_filespec = os.path.join(inputs_dir, rptr_filter_filename)
+        # sanity check - file must be present
+        if not os.path.exists(tg_filter_filespec):
+            print("ERROR:  option --rptr_filter set, but filter file not found!")
+            print("        (file '{}' must exist)".format(rptr_filter_filespec))
+            sys.exit(-1)
+        else:
+            print("Reading Repeater Filter file: {}".format(
+                os.path.basename(rptr_filter_filespec)))
+        rptr_filter_list = read_rptr_filter_file(rptr_filter_filespec, 
+            debug=debugflg)
+    else:
+        rptr_filter_list = []
+
     # Add talk groups from K7ABD Talkgroups__ files
     talkgroups_filespec = os.path.join(inputs_dir, 'Talkgroups__*')
     file_list = []
@@ -1218,8 +1267,8 @@ def main():
             os.path.basename(digital_repeaters_filename)))
         add_channels_fm_k7abd_digital_repeaters_file(
             digital_repeaters_filename, channels_dict, zones_dict,
-            tg_by_num_dict, tg_by_name_dict, tg_filter_list, 
-            debug=debugflg)
+            tg_by_num_dict, tg_by_name_dict, tg_filter_list,
+            rptr_filter_list, debug=debugflg)
 
     if '868' in args.cps_target:
 
