@@ -421,19 +421,23 @@ optional arguments:
   -h, --help             show this help message and exit
   --cps CPS_TARGET       specify CPS target; multiple targets allowed, or use
                          special target "all" to generate files for all
-                         supported targets
-  --inputdir INPUTDIR    specify directory containing input files
-  --outputdir OUTPUTDIR  specify directory for output files
+                         supported targets (default: [])
+  --inputdir INPUTDIR    specify directory containing input files (default:
+                         ./input_data_files)
+  --outputdir OUTPUTDIR  specify directory for output files (default:
+                         ./output_files)
   --zone_order           set the zone_order flag; if set, 'MyZoneOrder.csv'
                          must be present in the input files directory; useful
                          for CPS targets that support zone file import/export
+                         (default: False)
   --tg_filter            set the tg_filter flag; if set,
                          'MyExcludedTalkgroups.csv' must be present in the
-                         input files directory
+                         input files directory (default: False)
   --rptr_filter          set the rptr_filter flag; if set,
                          'MyExcludedRepeaters.csv' must be present in the input
-                         files directory
-  --debugmode            set the debug flag for troubleshooting
+                         files directory (default: False)
+  --debugmode            set the debug flag for troubleshooting (default:
+                         False)
 
 ```
 

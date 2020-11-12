@@ -1130,7 +1130,8 @@ def main():
     #Setup our command line handler
     debugmode = False
     script_name = sys.argv[0]
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class = 
+        argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--cps', action='append', required=True,
         dest='cps_target',
         help='specify CPS target; multiple targets allowed, or use special target "all" to generate files for all supported targets',
