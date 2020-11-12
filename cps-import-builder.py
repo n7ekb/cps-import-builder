@@ -1145,10 +1145,10 @@ def main():
         help="set the zone_order flag; if set, 'MyZoneOrder.csv' must be present in the input files directory; useful for CPS targets that support zone file import/export",
         required=False, action='store_true')
     parser.add_argument('--tg_filter',
-        help="set the tg_filter flag; if set, 'Digital-Repeaters-MyTalkgroups.csv' must be present in the input files directory",
+        help="set the tg_filter flag; if set, 'MyExcludedTalkgroups.csv' must be present in the input files directory",
         required=False, action='store_true')
     parser.add_argument('--rptr_filter',
-        help="set the rptr_filter flag; if set, 'Digital-Repeaters-MyRepeaters.csv' must be present in the input files directory",
+        help="set the rptr_filter flag; if set, 'MyExcludedRepeaters.csv' must be present in the input files directory",
         required=False, action='store_true')
     parser.add_argument('--debugmode',
         help='set the debug flag for troubleshooting', required=False,
@@ -1198,7 +1198,7 @@ def main():
 
     # Read in optional talk group filter file
     if tg_filter_flg:
-        tg_filter_filename = 'Digital-Repeaters-MyTalkgroups.csv'
+        tg_filter_filename = 'MyExcludedTalkgroups.csv'
         tg_filter_filespec = os.path.join(inputs_dir, tg_filter_filename)
         # sanity check - file must be present
         if not os.path.exists(tg_filter_filespec):
@@ -1215,7 +1215,7 @@ def main():
 
     # Read in optional repeater filter file
     if rptr_filter_flg:
-        rptr_filter_filename = 'Digital-Repeaters-MyRepeaters.csv'
+        rptr_filter_filename = 'MyExcludedRepeaters.csv'
         rptr_filter_filespec = os.path.join(inputs_dir, rptr_filter_filename)
         # sanity check - file must be present
         if not os.path.exists(tg_filter_filespec):

@@ -295,6 +295,115 @@ script when forming the channel name.  Channel names cannot
 exceed 16 characters.
 
 
+# Optional Files Overview
+
+There are some optional files that may be required by
+the script if one or more of the following command line 
+options are specified: --zone_order, --tg_filter, or 
+--rptr_filter.  The script expects to find these files 
+in the input files directory.  The --inputdir command 
+line option can be used to specify an input files 
+directory other than the default of "./input_data_files".
+
+The optional files are (with associated option in parenthesis):  
+
+* MyExcludedRepeaters.csv  (--rptr_filter)
+* MyExcludedTalkgroups.csv  (--tg_filter)
+* MyZoneOrder.csv  (--zone_order)
+
+The layout and purpose of each of these optional files 
+is described in more detail in separate sections for 
+each file below.
+
+
+## MyExcludedRepeaters.csv
+  
+#### Layout
+
+```
+Repeater Name
+```
+
+#### Description
+
+This single column file allows you to exclude rows of the 
+Digital-Repeaters__*.csv files from processing.
+
+The PNW Digital Network (http://pnwdigital.net) provides
+a Digital-Repeaters__*.csv file that includes a row for
+each repeater (59+) on their network covering several 
+states in the Pacific Northwest.  A codeplug that 
+contains a channel for each repeater/talkgroup combination
+specified in the Digital-Repeaters__*.csv file 
+would have upwards of 3000+ channels.  This
+exceeds the channel capacity of CPS's targeted
+by this script.
+
+You can specify --rptr_filter on the command line and 
+then use the MyExcludedRepeaters.csv file to exclude any 
+repeaters listed in the file from being processed. 
+This will allow you to reduce the number of channels 
+generated for the given CPS target(s), and eliminate
+entries for repeaters that you won't be using.
+
+Rather than editing the Digital-Repeaters___*.csv file 
+each time it is updated, you can use a 
+MyExcudedRepeaters.csv file instead.
+
+
+## MyExcludedTalkgroups.csv
+  
+#### Layout
+
+```
+TG Name
+```
+
+#### Description
+
+This single column file allows you to exclude talk groups
+specified in the Digital-Repeaters__*.csv files from 
+processing.
+
+The PNW Digital Network (http://pnwdigital.net) provides
+a Digital-Repeaters__*.csv file that includes every talk
+group (50+) available on their network.  If you are interested
+in creating channels from the Digital-Repeaters__*.csv
+file for only a subset of talk groups that you regularly
+use, you can specify --tg_filter on the command line 
+and place any talk groups you want to exclude from 
+processing in your MyExcludedTalkgroups.csv file.  
+
+Rather than editing the Digital-Repeaters___*.csv file 
+each time it is updated to trim down the number of 
+talk groups to your custom set, you can use a 
+MyExcludedTalkgroups.csv file instead.
+
+## MyZoneOrder.csv
+  
+#### Layout
+
+```
+Zone Name
+```
+
+#### Description
+
+This single column .csv file allows you to specify the 
+order of zones that will be emitted in the zones import
+file for CPS targets which support zone file import/export.
+
+Any zones that were specified in the input data files
+that don't appear in the MyZoneOrder.csv file will be
+appended to the bottom of the zone import file produced
+by the script in the order that they appeared in 
+processing.
+
+If a zone is specified in this file that has no
+corresponding channel members defined in the input
+data files, it will generate a warning message 
+from the script that the Zone is unused.
+
 # Usage
 
 Here is the usage message from the current script:
@@ -318,12 +427,12 @@ optional arguments:
   --zone_order           set the zone_order flag; if set, 'MyZoneOrder.csv'
                          must be present in the input files directory; useful
                          for CPS targets that support zone file import/export
-  --tg_filter            set the tg_filter flag; if set, 'Digital-Repeaters-
-                         MyTalkgroups.csv' must be present in the input files
-                         directory
-  --rptr_filter          set the rptr_filter flag; if set, 'Digital-Repeaters-
-                         MyRepeaters.csv' must be present in the input files
-                         directory
+  --tg_filter            set the tg_filter flag; if set,
+                         'MyExcludedTalkgroups.csv' must be present in the
+                         input files directory
+  --rptr_filter          set the rptr_filter flag; if set,
+                         'MyExcludedRepeaters.csv' must be present in the input
+                         files directory
   --debugmode            set the debug flag for troubleshooting
 
 ```
