@@ -1141,14 +1141,14 @@ def main():
     parser.add_argument('--outputdir',
         help='specify directory for output files',
         required=False, default='./output_files')
-    parser.add_argument('--zone_order_file',
-        help="specify file to control zone order. Only useful for CPS targets that support zone file import/export",
-        required=False, default='')
+    parser.add_argument('--zone_order',
+        help="set the zone_order flag; if set, 'MyZoneOrder.csv' must be present in the input files directory; useful for CPS targets that support zone file import/export",
+        required=False, action='store_true')
     parser.add_argument('--tg_filter',
-        help="set the tg_filter flag; the file 'Digital-Repeaters-MyTalkgroups.csv must be present in the input files directory when this flag set",
+        help="set the tg_filter flag; if set, 'Digital-Repeaters-MyTalkgroups.csv' must be present in the input files directory",
         required=False, action='store_true')
     parser.add_argument('--rptr_filter',
-        help="set the rptr_filter flag; the file 'Digital-Repeaters-MyRepeaters.csv must be present in the input files directory when this flag set",
+        help="set the rptr_filter flag; if set, 'Digital-Repeaters-MyRepeaters.csv' must be present in the input files directory",
         required=False, action='store_true')
     parser.add_argument('--debugmode',
         help='set the debug flag for troubleshooting', required=False,
@@ -1156,7 +1156,7 @@ def main():
 
     # parse the command line
     args = parser.parse_args()
-    zone_order_filespec = args.zone_order_file
+    zone_order_flg = args.zone_order
     tg_filter_flg = args.tg_filter
     rptr_filter_flg = args.rptr_filter
     debugflg = args.debugmode
@@ -1180,10 +1180,18 @@ def main():
     print("Putting output files in: '{}'.".format(outputs_dir))
 
     # Read in optional Zone Order file
-    if zone_order_filespec != '':
-        print("Reading Zone Order file: {}".format(
-            os.path.basename(zone_order_filespec)))
-        zones_order_list = read_zone_order_file(zone_order_filespec, 
+    if zone_order_flg:
+        zone_order_filename = 'MyZoneOrder.csv' 
+        zone_order_filespec = os.path.join(inputs_dir, zone_order_filename)
+        # sanity check - file must be present
+        if not os.path.exists(zone_order_filespec):
+            print("ERROR:  option --zone_order set, but Zone Order file not found!")
+            print("        (file '{}' must exist)".format(zone_order_filespec))
+            sys.exit(-1)
+        else:
+            print("Reading Zone Order file: {}".format(
+                os.path.basename(zone_order_filespec)))
+            zones_order_list = read_zone_order_file(zone_order_filespec, 
             debug=debugflg)
     else:
         zones_order_list = []
