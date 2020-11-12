@@ -300,13 +300,15 @@ exceed 16 characters.
 Here is the usage message from the current script:
 
 ```
+
 CPS Import File Builder
 Supported CPS targets: ['868', '878', 'cs800d', 'uv380']
 Source: https://github.com/n7ekb/cps-import-builder
 
 usage: cps-import-builder.py [-h] --cps CPS_TARGET [--inputdir INPUTDIR]
                              [--outputdir OUTPUTDIR]
-                             [--zone_order_file ZONE_ORDER_FILE] [--debugmode]
+                             [--zone_order_file ZONE_ORDER_FILE] [--tg_filter]
+                             [--rptr_filter] [--debugmode]
 
 optional arguments:
   -h, --help             show this help message and exit
@@ -318,10 +320,15 @@ optional arguments:
   --zone_order_file ZONE_ORDER_FILE
                          specify file to control zone order. Only useful for
                          CPS targets that support zone file import/export
+  --tg_filter            set the tg_filter flag; the file 'Digital-Repeaters-
+                         MyTalkgroups.csv must be present in the input files
+                         directory when this flag set
+  --rptr_filter          set the rptr_filter flag; the file 'Digital-Repeaters-
+                         MyRepeaters.csv must be present in the input files
+                         directory when this flag set
   --debugmode            set the debug flag for troubleshooting
 
 ```
-
 
 # Help Needed
 
