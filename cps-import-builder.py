@@ -16,6 +16,7 @@ import os
 import time
 import glob
 import argparse
+import re
 
 
 #
@@ -560,7 +561,9 @@ def cs800d_write_channels_export(channels_dict, channels_export_file,
         else:
             row_list.append("Middle")   # TX Ref Frequency (UHF/70cm )
 
-        row_list.append(attr_dict['Talk Group'])  # TX Contact
+        # Need to translate non-alphanumeric characters to spaces
+        talk_group_str = re.sub('[^0-9a-zA-Z/~ ]+', ' ', attr_dict['Talk Group'])
+        row_list.append(talk_group_str)  # TX Contact
         row_list.append("None")             # Emergency System
 
         # Power level
@@ -630,6 +633,11 @@ def cs800d_write_talk_groups_export(talk_groups_dict,talk_groups_export_file, de
         row_list.append(cnt)
         cnt = cnt + 1
         tg_name = talk_groups_dict[tg_id][0]
+
+        # Need to translate non-alphanumeric characters to spaces
+        tg_name = re.sub('[^0-9a-zA-Z/~ ]+', ' ', tg_name)
+        tg_name.strip()
+
         if len(tg_name) > 16:
             print("WARNING:  TG Name '{}' > 16, truncating to '{}'".format(tg_name,tg_name[:16]))
         row_list.append(tg_name[:16])
