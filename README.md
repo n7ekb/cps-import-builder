@@ -22,7 +22,7 @@ following supported CPS software packages:
 * Anytone AT-D868UV CPS Version 1.35
 * Anytone AT-D878UV CPS Version 1.21
 * Connect Systems CS800D CPS Version R4.03.07
-* Tytera MD-UV380/MD-UV390
+* Tytera MD-UV380/MD-UV390 Version V1.07
 
 Future support planned:
 
@@ -326,13 +326,13 @@ Repeater Name
 
 #### Description
 
-This single column file allows you to exclude rows of the 
+This single column .csv file allows you to exclude rows of the 
 Digital-Repeaters__*.csv files from processing.
 
 The PNW Digital Network (http://pnwdigital.net) provides
 a Digital-Repeaters__*.csv file that includes a row for
-each repeater (59+) on their network covering several 
-states in the Pacific Northwest.  A codeplug that 
+each repeater (59+) on their DMR network covering 
+the Pacific Northwest Region in North America.  A codeplug that 
 contains a channel for each repeater/talkgroup combination
 specified in the Digital-Repeaters__*.csv file 
 would have upwards of 3000+ channels.  This
@@ -346,7 +346,7 @@ This will allow you to reduce the number of channels
 generated for the given CPS target(s), and eliminate
 entries for repeaters that you won't be using.
 
-Rather than editing the Digital-Repeaters___*.csv file 
+Rather than editing the Digital-Repeaters__*.csv file 
 each time it is updated, you can use a 
 MyExcudedRepeaters.csv file instead.
 
@@ -361,7 +361,7 @@ TG Name
 
 #### Description
 
-This single column file allows you to exclude talk groups
+This single column .csv file allows you to exclude talk groups
 specified in the Digital-Repeaters__*.csv files from 
 processing.
 
@@ -374,7 +374,7 @@ use, you can specify --tg_filter on the command line
 and place any talk groups you want to exclude from 
 processing in your MyExcludedTalkgroups.csv file.  
 
-Rather than editing the Digital-Repeaters___*.csv file 
+Rather than editing the Digital-Repeaters__*.csv file 
 each time it is updated to trim down the number of 
 talk groups to your custom set, you can use a 
 MyExcludedTalkgroups.csv file instead.
@@ -440,6 +440,26 @@ optional arguments:
                          False)
 
 ```
+# Installation
+
+This project requires a standard Python 3 execution environment.
+Most of the development and testing has been done on Linux
+systems, but there shouldn't be any obstacles to execution on
+a Windows or MAC system.  If you do have problems, please file
+and issue so we can address it.
+
+A "requirements.txt" document is included in this repo.  You can
+ensure that you have all of the needed Python packages/libraries
+to run the script by feeding the requirements.txt file to PIP.
+
+For example:
+
+```
+pip  install  -r  requirements.txt
+```
+After a successful run of the above PIP command your local Python
+execution environment should have all of the dependencies needed
+for this project.
 
 # Help Needed
 
