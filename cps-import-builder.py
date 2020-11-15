@@ -562,7 +562,7 @@ def cs800d_write_channels_export(channels_dict, channels_export_file,
             row_list.append("Middle")   # TX Ref Frequency (UHF/70cm )
 
         # Need to translate non-alphanumeric characters to spaces
-        talk_group_str = re.sub('[^0-9a-zA-Z/~ ]+', ' ', attr_dict['Talk Group'])
+        talk_group_str = re.sub('[^0-9a-zA-Z~ ]+', ' ', attr_dict['Talk Group'])
         row_list.append(talk_group_str)  # TX Contact
         row_list.append("None")             # Emergency System
 
@@ -635,7 +635,7 @@ def cs800d_write_talk_groups_export(talk_groups_dict,talk_groups_export_file, de
         tg_name = talk_groups_dict[tg_id][0]
 
         # Need to translate non-alphanumeric characters to spaces
-        tg_name = re.sub('[^0-9a-zA-Z/~ ]+', ' ', tg_name)
+        tg_name = re.sub('[^0-9a-zA-Z~ ]+', ' ', tg_name)
         tg_name.strip()
 
         if len(tg_name) > 16:
