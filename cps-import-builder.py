@@ -38,11 +38,11 @@ import re
 #  Additional attributes for a digital channel:
 #
 #  Key
-#  'Color Code'
+#  'Color Code'     Integer val 1-14 
 #  'Talk Group'     Contact/TG Name
-#  'Time Slot'
-#  'Call Type'      Group/Private
-#  'TX Permit'      Always, Color Code Free
+#  'Time Slot'      "1" or "2"
+#  'Call Type'      "Group Call" or "Private Call"
+#  'TX Permit'      "Same Color Code" or "Always"
 
 
 # global lists of all CTCSS values
@@ -654,12 +654,266 @@ def cs800d_write_talk_groups_export(talk_groups_dict,talk_groups_export_file, de
     talk_groups_out_df = pandas.DataFrame(talk_groups_out_list, columns=header_row)
 
     if debug:
-        print("Writing output to: ", talkgroups_export_file)
+        print("Writing output to: ", talk_groups_export_file)
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     writer = pandas.ExcelWriter(talk_groups_export_file, engine='xlsxwriter')
     talk_groups_out_df.to_excel(writer, sheet_name="DMR_Contacts", index=False)
     writer.save()
+
+    return
+
+
+
+def uv380_write_talk_groups_export(talk_groups_dict,talk_groups_export_file, 
+        tytera_tg_index_dict, debug=False):
+    """This function writes out a Tytera uv380 CPS formatted talk groups import file."""
+
+    # Prepare a dataframe from the talk groups dict
+    header_row = ['Contact Name','Call Type','Call ID','Call Receive Tone']
+    talk_groups_out_list = []
+    cnt = 1
+    for tg_id in sorted(talk_groups_dict.keys()):
+        row_list = []
+
+        # Contact Name
+        tg_name = talk_groups_dict[tg_id][0]
+        if len(tg_name) > 16:
+            print("WARNING:  TG Name '{}' > 16, truncating to '{}'".format(
+                tg_name,tg_name[:16]))
+        row_list.append(tg_name[:16])
+
+        # Call Type
+        tytera_call_type_dict = {'Group Call':'1','Private Call':'2'}
+        tg_call_type = talk_groups_dict[tg_id][1]
+        if tg_call_type not in tytera_call_type_dict.keys():
+            print("ERROR:  Can't convert '{}' to Tytera call type!".format(
+                tg_call_type))
+            print("        Aborting.")
+            sys.exit(-1)
+        row_list.append(tytera_call_type_dict[tg_call_type])
+
+        # Call ID
+        row_list.append(tg_id)
+
+        # Call Receive Tone
+        tytera_call_alert_dict = {'None':'0','Yes':'1'}
+        tg_call_alert = talk_groups_dict[tg_id][2]
+        if tg_call_alert not in tytera_call_alert_dict.keys():
+            print("ERROR:  Can't convert '{}' to Tytera call alert!".format(
+                tg_call_alert))
+            print("        Aborting.")
+            sys.exit(-1)
+        row_list.append(tytera_call_alert_dict[tg_call_alert])
+
+        # append the row to our list
+        talk_groups_out_list.append(row_list)
+
+        # Update tytera_tg_index_dict so we can translate in channels file 
+        tytera_tg_index_dict.update({tg_name[:16]:cnt})
+        cnt = cnt + 1
+
+    # Create the data frame
+    talk_groups_out_df = pandas.DataFrame(talk_groups_out_list,
+        columns=header_row)
+
+    # Output the data frame as CSV file
+    if debug:
+        print("Writing output to: ", talk_groups_export_file)
+    talk_groups_out_df.to_csv(talk_groups_export_file, index=False,
+            header=True, quoting=csv.QUOTE_NONE, line_terminator='\r\n')
+
+    # clean up...
+    del talk_groups_out_list
+    del talk_groups_out_df
+
+    return
+
+
+
+def uv380_write_channels_export(channels_dict, channels_export_file,
+        tytera_tg_index_dict, debug=False):
+    """This function writes out a Tytera uv380 CPS formatted channels file"""
+
+    header_row = ['Channel Mode','Channel Name','RX Frequency(MHz)',
+                  'TX Frequency(MHz)','Band Width','Scan List','Squelch',
+                  'RX Ref Frequency','TX Ref Frequency','TOT[s]',
+                  'TOT Rekey Delay[s]','Power','Admit Criteria',
+                  'Auto Scan','Rx Only','Lone Worker','VOX',
+                  'Allow Talkaround','Send GPS Info','Receive GPS Info',
+                  'Private Call Confirmed','Emergency Alarm Ack',
+                  'Data Call Confirmed','Allow Interrupt','DCDM Switch',
+                  'Leader/MS','Emergency System','Contact Name',
+                  'Group List','Color Code','Repeater Slot',
+                  'In Call Criteria','Privacy','Privacy No.',
+                  'GPS System','CTCSS/DCS Dec','CTCSS/DCS Enc',
+                  'Rx Signaling System','Tx Signaling System',
+                  'QT Reverse','Non-QT/DQT Turn-off Freq',
+                  'Display PTT ID','Reverse Burst/Turn-off Code',
+                  'Decode 1','Decode 2','Decode 3','Decode 4',
+                  'Decode 5','Decode 6','Decode 7','Decode 8'
+                 ]
+
+    # Create a dataframe from the channels dict and output it...
+    channels_out_list = []
+    cnt = 1
+    for ch_name in channels_dict.keys():
+
+        # get channel attributes dictionary
+        attr_dict = channels_dict[ch_name]
+
+        # now fill out this row in correct order for Tytera uv380
+        row_list = []
+        ch_type = attr_dict['Ch Type']
+        if ch_type == "Analog":
+            row_list.append('1')                # Channel Mode
+        else:
+            row_list.append('2')                # Channel Mode
+        row_list.append(ch_name)                # Channel Name
+        row_list.append(attr_dict['RX Freq'])   # Receive Frequency(MHz)
+        row_list.append(attr_dict['TX Freq'])   # Transmit Frequency(MHz)
+
+        # translate bandwidth to Tytera 0 (12.5K), 1 (20), or 2 (25K)
+        if ch_type == "Analog":
+            tytera_bandwidth_dict = {'12.5K':'0', '20K':'1', '25K':'2'}
+            bandwidth = attr_dict['Bandwidth']
+            if bandwidth not in tytera_bandwidth_dict.keys():
+                print("ERROR:  Can't convert '{}' to Tytera bandwidth!".format(
+                    bandwidth))
+                print("        Aborting.")
+                sys.exit(-1)
+            row_list.append(tytera_bandwidth_dict[bandwidth])
+        else:
+            row_list.append('0')
+
+
+        row_list.append('0')                # Scan List
+        row_list.append('1')                # Squelch
+        row_list.append('0')                # RX Ref Frequency
+        row_list.append('0')                # TX Ref Frequency
+        row_list.append('8')                # TOT[s] (index 8 = 120s)
+        row_list.append('0')                # TOT Rekey Delay[s]
+
+        # translate power to Tytera 0 (Low), 1 (Middle), or 2 (High)
+        tytera_power_dict = {'Low':'0', 'Medium':'1', 
+                             'High':'2', 'Turbo':'2' }
+        power = attr_dict['Power']
+        if power not in tytera_power_dict.keys():
+            print("ERROR:  Can't convert '{}' to Tytera power!".format(
+                power))
+            print("        Aborting.")
+            sys.exit(-1)
+        row_list.append(tytera_power_dict[power]) # Power
+
+        # Admit Criteria
+        if ch_type == 'Analog':
+            row_list.append('0')
+        else:
+            # translate Admit Criteria to Tytera 0 (Always), 3 (Color Code)
+            tytera_admit_criteria_dict = {'Always':'0', 'Same Color Code':'3'} 
+            admit_criteria = attr_dict['TX Permit']
+            if admit_criteria not in tytera_admit_criteria_dict.keys():
+                print("ERROR:  Can't convert '{}' to Tytera admit criteria!".format(
+                    admit_criteria))
+                print("        Aborting.")
+                sys.exit(-1)
+            row_list.append(tytera_admit_criteria_dict[admit_criteria]) 
+
+        row_list.append('0')                # Auto Scan
+        if attr_dict['RX Only'] == "On":
+            row_list.append('1')            # Rx Only
+        else:
+            row_list.append('0')            # Rx Only
+        row_list.append('0')                # Lone Worker
+        row_list.append('0')                # VOX
+        row_list.append('0')                # Allow Talkaround
+        row_list.append('0')                # Send GPS
+        row_list.append('0')                # Receive GPS Info
+        row_list.append('0')                # Private Call Confirmed
+        row_list.append('0')                # Emergency Alarm Ack
+        row_list.append('0')                # Data Call Confirmed
+        row_list.append('0')                # Allow Interrupt
+        row_list.append('0')                # DCDM Switch
+        row_list.append('1')                # Leader/MS
+        row_list.append('0')                # Emergency System
+
+        # Contact Name 
+        if ch_type == 'Analog':
+            row_list.append('0')  
+        else:
+            talk_group_str = attr_dict['Talk Group']
+            if talk_group_str not in tytera_tg_index_dict.keys():
+                print("ERROR:  Can't convert '{}' to Tytera TG Index!".format(
+                    talk_group_str))
+                print("        Aborting.")
+                sys.exit(-1)
+            row_list.append(tytera_tg_index_dict[talk_group_str])
+
+        row_list.append('0')                # Group List
+
+        # Color Code
+        if ch_type == 'Analog':
+            row_list.append('1')
+        else:
+            row_list.append(attr_dict['Color Code'])
+
+        # Repeater Slot
+        if ch_type == 'Analog':
+            row_list.append('0')
+        else:
+            # translate Repeater Slot to Tytera 0 (Slot 1), 1 (Slot 2)
+            tytera_time_slot_dict = {'1':'0', '2':'1'} 
+            time_slot = str(attr_dict['Time Slot'])
+            if time_slot not in tytera_time_slot_dict.keys():
+                print("ERROR:  Can't convert '{}' to Tytera time slot!".format(
+                    time_slot))
+                print("        Channel name = {}".format(ch_name))
+                print("        Aborting.")
+                sys.exit(-1)
+            row_list.append(tytera_time_slot_dict[time_slot]) 
+
+        # In Call Criteria
+        if ch_type == 'Analog':
+            row_list.append('0')
+        else:
+            row_list.append('1')    # force "Follow Admit Criteria"
+
+        row_list.append('0')        # Privacy
+        row_list.append('0')        # Privacy No.
+        row_list.append('0')        # GPS System
+        row_list.append(attr_dict['CTCSS Decode'])  # CTCSS/DCS Dec 
+        row_list.append(attr_dict['CTCSS Encode'])  # CTCSS/DCS Enc 
+        row_list.append('0')        # Rx Signaling System
+        row_list.append('0')        # Tx Signaling System
+        row_list.append('0')        # QT Reverse
+        row_list.append('2')        # Non-QT/DQT Turn-off Freq
+        row_list.append('1')        # Display PTT ID
+        row_list.append('1')        # Reverse Burst/Turn-off Code
+        row_list.append('0')        # Decode 1
+        row_list.append('0')        # Decode 2
+        row_list.append('0')        # Decode 3
+        row_list.append('0')        # Decode 4
+        row_list.append('0')        # Decode 5
+        row_list.append('0')        # Decode 6
+        row_list.append('0')        # Decode 7
+        row_list.append('0')        # Decode 8
+
+        # now add this row to the channels list
+        channels_out_list.append(row_list)
+
+    # Create data frame 
+    channels_out_df = pandas.DataFrame(channels_out_list, columns=header_row)
+
+    # Group channels by Channel Type (analog then digital)
+    channels_out_df.sort_values(by=['Channel Mode','Channel Name'],
+        inplace=True)
+    channels_out_df.reset_index(drop=True, inplace=True)
+    
+    # Write CSV file
+    if debug:
+        print("Writing output to: {}".format(channels_export_file))
+    channels_out_df.to_csv(channels_export_file, index=False,
+        header=True, quoting=csv.QUOTE_NONE, line_terminator='\r\n')
 
     return
 
@@ -1077,7 +1331,7 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
                     'TG Number':tg_by_name_dict[tg_name],
                     'Time Slot':ch_slot,
                     'Call Type':"Group Call",
-                    'TX Permit':"Color Code Free",
+                    'TX Permit':"Same Color Code",
                     'RX Only':"Off"
                     }})
 
@@ -1122,9 +1376,6 @@ supported_cps_targets = ['868','878','cs800d','uv380']
 
 def main():
 
-    # get today's date to stamp output files with today's iso-date.
-    isodate = time.strftime("%Y-%m-%d")
-
     # Greet the customer
     print("")
     print("CPS Import File Builder")
@@ -1132,8 +1383,6 @@ def main():
     print("Source: https://github.com/n7ekb/cps-import-builder")
     print("")
 
-    # get today's date to stamp output files with today's iso-date.
-    isodate = time.strftime("%Y-%m-%d")
 
     #Setup our command line handler
     debugmode = False
@@ -1169,6 +1418,12 @@ def main():
     tg_filter_flg = args.tg_filter
     rptr_filter_flg = args.rptr_filter
     debugflg = args.debugmode
+
+    # get today's date to stamp output files with today's iso-date.
+    if debugflg:
+        isodate = time.strftime("%Y-%m-%d_%H%M")
+    else:
+        isodate = time.strftime("%Y-%m-%d")
 
     # sanity check --cps target(s)
     for selection in args.cps_target:
@@ -1307,19 +1562,19 @@ def main():
         print("   Zones import file: {}".format(
             os.path.basename(zones_output_file)))
         anytone_write_zones_export(zones_dict, zones_order_list,
-            zones_output_file, channels_dict, model="868", debug=False)
+            zones_output_file, channels_dict, model="868", debug=debugflg)
 
         # Write out an Anytone 868 talk groups import file
         print("   Talk group import file: {}".format(
             os.path.basename(talk_groups_output_file)))
         anytone_write_talk_groups_export(tg_by_num_dict,
-            talk_groups_output_file, debug=False)
+            talk_groups_output_file, debug=debugflg)
 
         # Write out an Anytone 868 channel import file
         print("   Channels import file: {}".format(
             os.path.basename(channels_output_file)))
         anytone_write_channels_export(channels_dict,
-            channels_output_file, model="868", debug=False)
+            channels_output_file, model="868", debug=debugflg)
 
     if '878' in args.cps_target:
 
@@ -1341,19 +1596,19 @@ def main():
         print("   Zones import file: {}".format(
             os.path.basename(zones_output_file)))
         anytone_write_zones_export(zones_dict, zones_order_list,
-            zones_output_file, channels_dict, model="878", debug=False)
+            zones_output_file, channels_dict, model="878", debug=debugflg)
 
         # Write out an Anytone 878 talk groups import file
         print("   Talk group import file: {}".format(
             os.path.basename(talk_groups_output_file)))
         anytone_write_talk_groups_export(tg_by_num_dict,
-            talk_groups_output_file, debug=False)
+            talk_groups_output_file, debug=debugflg)
 
         # Write out an Anytone 878 channel import file
         print("   Channels import file: {}".format(
             os.path.basename(channels_output_file)))
         anytone_write_channels_export(channels_dict,
-            channels_output_file, model="878", debug=False)
+            channels_output_file, model="878", debug=debugflg)
 
 
     # Generate import files for Connect Systems CS800D
@@ -1375,13 +1630,13 @@ def main():
         print("   Talk group import file: {}".format(
             os.path.basename(talk_groups_output_file)))
         cs800d_write_talk_groups_export(tg_by_num_dict,
-            talk_groups_output_file, debug=False)
+            talk_groups_output_file, debug=debugflg)
 
         # Write out a CS800D channel import file
         print("   Channels import file: {}".format(
             os.path.basename(channels_output_file)))
         cs800d_write_channels_export(channels_dict,
-            channels_output_file, debug=False)
+            channels_output_file, debug=debugflg)
 
 
     # Generate import files for Tytera MD-UV380/MD-UV390
@@ -1400,16 +1655,17 @@ def main():
             channels_output_filename)
 
         # Write out an MD-UV380 talk groups import file
+        tytera_tg_index_dict = {}
         print("   Talk group import file: {}".format(
             os.path.basename(talk_groups_output_file)))
-        #uv380_write_talk_groups_export(tg_by_num_dict,
-        #    talk_groups_output_file, debug=False)
+        uv380_write_talk_groups_export(tg_by_num_dict,
+            talk_groups_output_file, tytera_tg_index_dict, debug=debugflg)
 
         # Write out an MD-UV380 channel import file
         print("   Channels import file: {}".format(
             os.path.basename(channels_output_file)))
-        #uv380_write_channels_export(channels_dict,
-        #    channels_output_file, debug=False)
+        uv380_write_channels_export(channels_dict,
+            channels_output_file, tytera_tg_index_dict, debug=debugflg)
 
     print("")
     print("All done!")
