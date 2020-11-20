@@ -99,22 +99,32 @@ def anytone_write_zones_export(zones_dict, zones_order_list,
         row_list.append(zone_name)
 
         # build Zone Channel Member string from list
-        member_str = '|'.join(zones_dict[zone_name][0])
+        zone_member_list = sorted(zones_dict[zone_name])
+        member_str = '|'.join(zone_member_list)
         if debug:
             print("   Member string: '{}'".format(member_str))
         row_list.append(member_str)
 
         if model == "878":
+
             # build Zone Channel Rx Freq string
-            rx_freq_str = '|'.join(zones_dict[zone_name][1])
+            rx_freq_list = []
+            for member in zone_member_list:
+                channel_rx_freq = str(channels_dict[member]['RX Freq'])
+                rx_freq_list.append(channel_rx_freq)
+            rx_freq_str = '|'.join(rx_freq_list)
             row_list.append(rx_freq_str)
 
             # build Zone Channel Tx Freq string
-            tx_freq_str = '|'.join(zones_dict[zone_name][2])
+            tx_freq_list = []
+            for member in zone_member_list:
+                channel_tx_freq = str(channels_dict[member]['TX Freq'])
+                tx_freq_list.append(channel_tx_freq)
+            tx_freq_str = '|'.join(tx_freq_list)
             row_list.append(tx_freq_str)
 
         # now use first member channel info as the "A" & "B" VFO default
-        first_member_name = zones_dict[zone_name][0][0]
+        first_member_name = zones_dict[zone_name][0]
         attr_dict = channels_dict[first_member_name]
         row_list.append(first_member_name)
         if model == "878":
@@ -992,19 +1002,11 @@ def add_channel_to_zone(zone_name, channel_name, zones_dict,
         channels_dict, debug=False): 
     """This function adds a channel to our zone dictionary."""
 
-    # get the channel's rx & tx frequencies
-    channel_rx_freq = str(channels_dict[channel_name]['RX Freq'])
-    channel_tx_freq = str(channels_dict[channel_name]['TX Freq'])
 
     if zone_name in zones_dict.keys():
-        # zone already created, just append channel,
-        # rx freq, & tx freq to lists
-        zone_member_list = zones_dict[zone_name][0]
+        # zone already created, just append channel
+        zone_member_list = zones_dict[zone_name]
         zone_member_list.append(channel_name)
-        zone_member_rx_list = zones_dict[zone_name][1]
-        zone_member_rx_list.append(channel_rx_freq)
-        zone_member_tx_list = zones_dict[zone_name][2]
-        zone_member_tx_list.append(channel_tx_freq)
         if debug:
             print("Zone '{}' updated with '{}'.".format(
                 zone_name, channel_name))
@@ -1012,8 +1014,7 @@ def add_channel_to_zone(zone_name, channel_name, zones_dict,
                 zone_name, zones_dict[zone_name]))
     else:
         # new zone, so create it
-        zones_dict.update({zone_name:
-            [[channel_name],[channel_rx_freq],[channel_tx_freq]]})
+        zones_dict.update({zone_name: [channel_name]})
 
     return
 
