@@ -38,7 +38,7 @@ import re
 #  Additional attributes for a digital channel:
 #
 #  Key
-#  'Color Code'     Integer val 1-14 
+#  'Color Code'     Integer val 1-14
 #  'Talk Group'     Contact/TG Name
 #  'Time Slot'      "1" or "2"
 #  'Call Type'      "Group Call" or "Private Call"
@@ -675,7 +675,7 @@ def cs800d_write_talk_groups_export(talk_groups_dict,talk_groups_export_file, de
 
 
 
-def uv380_write_talk_groups_export(talk_groups_dict,talk_groups_export_file, 
+def uv380_write_talk_groups_export(talk_groups_dict,talk_groups_export_file,
         tytera_tg_index_dict, debug=False):
     """This function writes out a Tytera uv380 CPS formatted talk groups import file."""
 
@@ -719,7 +719,7 @@ def uv380_write_talk_groups_export(talk_groups_dict,talk_groups_export_file,
         # append the row to our list
         talk_groups_out_list.append(row_list)
 
-        # Update tytera_tg_index_dict so we can translate in channels file 
+        # Update tytera_tg_index_dict so we can translate in channels file
         tytera_tg_index_dict.update({tg_name[:16]:cnt})
         cnt = cnt + 1
 
@@ -805,7 +805,7 @@ def uv380_write_channels_export(channels_dict, channels_export_file,
         row_list.append('0')                # TOT Rekey Delay[s]
 
         # translate power to Tytera 0 (Low), 1 (Middle), or 2 (High)
-        tytera_power_dict = {'Low':'0', 'Medium':'1', 
+        tytera_power_dict = {'Low':'0', 'Medium':'1',
                              'High':'2', 'Turbo':'2' }
         power = attr_dict['Power']
         if power not in tytera_power_dict.keys():
@@ -820,14 +820,14 @@ def uv380_write_channels_export(channels_dict, channels_export_file,
             row_list.append('0')
         else:
             # translate Admit Criteria to Tytera 0 (Always), 3 (Color Code)
-            tytera_admit_criteria_dict = {'Always':'0', 'Same Color Code':'3'} 
+            tytera_admit_criteria_dict = {'Always':'0', 'Same Color Code':'3'}
             admit_criteria = attr_dict['TX Permit']
             if admit_criteria not in tytera_admit_criteria_dict.keys():
                 print("ERROR:  Can't convert '{}' to Tytera admit criteria!".format(
                     admit_criteria))
                 print("        Aborting.")
                 sys.exit(-1)
-            row_list.append(tytera_admit_criteria_dict[admit_criteria]) 
+            row_list.append(tytera_admit_criteria_dict[admit_criteria])
 
         row_list.append('0')                # Auto Scan
         if attr_dict['RX Only'] == "On":
@@ -847,9 +847,9 @@ def uv380_write_channels_export(channels_dict, channels_export_file,
         row_list.append('1')                # Leader/MS
         row_list.append('0')                # Emergency System
 
-        # Contact Name 
+        # Contact Name
         if ch_type == 'Analog':
-            row_list.append('0')  
+            row_list.append('0')
         else:
             talk_group_str = attr_dict['Talk Group']
             if talk_group_str not in tytera_tg_index_dict.keys():
@@ -872,7 +872,7 @@ def uv380_write_channels_export(channels_dict, channels_export_file,
             row_list.append('0')
         else:
             # translate Repeater Slot to Tytera 0 (Slot 1), 1 (Slot 2)
-            tytera_time_slot_dict = {'1':'0', '2':'1'} 
+            tytera_time_slot_dict = {'1':'0', '2':'1'}
             time_slot = str(attr_dict['Time Slot'])
             if time_slot not in tytera_time_slot_dict.keys():
                 print("ERROR:  Can't convert '{}' to Tytera time slot!".format(
@@ -880,7 +880,7 @@ def uv380_write_channels_export(channels_dict, channels_export_file,
                 print("        Channel name = {}".format(ch_name))
                 print("        Aborting.")
                 sys.exit(-1)
-            row_list.append(tytera_time_slot_dict[time_slot]) 
+            row_list.append(tytera_time_slot_dict[time_slot])
 
         # In Call Criteria
         if ch_type == 'Analog':
@@ -891,8 +891,8 @@ def uv380_write_channels_export(channels_dict, channels_export_file,
         row_list.append('0')        # Privacy
         row_list.append('0')        # Privacy No.
         row_list.append('0')        # GPS System
-        row_list.append(attr_dict['CTCSS Decode'])  # CTCSS/DCS Dec 
-        row_list.append(attr_dict['CTCSS Encode'])  # CTCSS/DCS Enc 
+        row_list.append(attr_dict['CTCSS Decode'])  # CTCSS/DCS Dec
+        row_list.append(attr_dict['CTCSS Encode'])  # CTCSS/DCS Enc
         row_list.append('0')        # Rx Signaling System
         row_list.append('0')        # Tx Signaling System
         row_list.append('0')        # QT Reverse
@@ -911,14 +911,14 @@ def uv380_write_channels_export(channels_dict, channels_export_file,
         # now add this row to the channels list
         channels_out_list.append(row_list)
 
-    # Create data frame 
+    # Create data frame
     channels_out_df = pandas.DataFrame(channels_out_list, columns=header_row)
 
     # Group channels by Channel Type (analog then digital)
     channels_out_df.sort_values(by=['Channel Mode','Channel Name'],
         inplace=True)
     channels_out_df.reset_index(drop=True, inplace=True)
-    
+
     # Write CSV file
     if debug:
         print("Writing output to: {}".format(channels_export_file))
@@ -964,7 +964,7 @@ def read_tg_filter_file(file_path, debug=False):
     tg_filter_list = []
     for i,row in talk_group_filter_df.iterrows():
 
-        # get talk group name 
+        # get talk group name
         tg_name = row['TG Name']
         tg_filter_list.append(tg_name)
 
@@ -987,7 +987,7 @@ def read_rptr_filter_file(file_path, debug=False):
     rptr_filter_list = []
     for i,row in rptr_filter_df.iterrows():
 
-        # get talk group name 
+        # get talk group name
         rptr_name = row['Repeater Name']
         rptr_filter_list.append(rptr_name)
 
@@ -999,7 +999,7 @@ def read_rptr_filter_file(file_path, debug=False):
 
 
 def add_channel_to_zone(zone_name, channel_name, zones_dict,
-        channels_dict, debug=False): 
+        channels_dict, debug=False):
     """This function adds a channel to our zone dictionary."""
 
 
@@ -1069,7 +1069,7 @@ def add_channels_fm_k7abd_analog_file(k7abd_analog_file_name, channels_dict,
 
 
 
-def add_talkgroups_fm_k7abd_talkgroups_file(k7abd_tg_file, tg_by_num_dict, 
+def add_talkgroups_fm_k7abd_talkgroups_file(k7abd_tg_file, tg_by_num_dict,
         tg_by_name_dict, debug=False):
     """This function reads a talk groups file in K7ABD format."""
 
@@ -1260,7 +1260,7 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
         zone_name = zone_name_list[0]
         ch_prefix = zone_name_list[1]
         ch_prefix = ch_prefix.lower()
-         
+
         # Short circuit if repeater is in rptr_filter_list
         if zone_name in rptr_filter_list:
             continue
@@ -1288,7 +1288,7 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
 
             # get the talk group's slot
             ch_slot = str(row[tg_name])
-            
+
             valid_slot_list = ['1','2']
             if ch_slot not in valid_slot_list:
                 # this talk group not on this repeater, so
@@ -1338,7 +1338,7 @@ def add_channels_fm_k7abd_digital_repeaters_file(k7abd_digital_file_name,
 
             # collect this channel and the specified zone
             repeater_channel_dict.update({ch_name:zone_name})
-            
+
         # Now sort the channels; add them to the zones
         for ch_name in sorted(repeater_channel_dict.keys()):
             add_channel_to_zone(repeater_channel_dict[ch_name], ch_name,
@@ -1388,7 +1388,7 @@ def main():
     #Setup our command line handler
     debugmode = False
     script_name = sys.argv[0]
-    parser = argparse.ArgumentParser(formatter_class = 
+    parser = argparse.ArgumentParser(formatter_class =
         argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--cps', action='append', required=True,
         dest='cps_target',
@@ -1446,7 +1446,7 @@ def main():
 
     # Read in optional Zone Order file
     if zone_order_flg:
-        zone_order_filename = 'MyZoneOrder.csv' 
+        zone_order_filename = 'MyZoneOrder.csv'
         zone_order_filespec = os.path.join(inputs_dir, zone_order_filename)
         # sanity check - file must be present
         if not os.path.exists(zone_order_filespec):
@@ -1456,7 +1456,7 @@ def main():
         else:
             print("Reading Zone Order file: {}".format(
                 os.path.basename(zone_order_filespec)))
-            zones_order_list = read_zone_order_file(zone_order_filespec, 
+            zones_order_list = read_zone_order_file(zone_order_filespec,
             debug=debugflg)
     else:
         zones_order_list = []
@@ -1473,7 +1473,7 @@ def main():
         else:
             print("Reading Talk Group Filter file: {}".format(
                 os.path.basename(tg_filter_filespec)))
-        tg_filter_list = read_tg_filter_file(tg_filter_filespec, 
+        tg_filter_list = read_tg_filter_file(tg_filter_filespec,
             debug=debugflg)
     else:
         tg_filter_list = []
@@ -1490,7 +1490,7 @@ def main():
         else:
             print("Reading Repeater Filter file: {}".format(
                 os.path.basename(rptr_filter_filespec)))
-        rptr_filter_list = read_rptr_filter_file(rptr_filter_filespec, 
+        rptr_filter_list = read_rptr_filter_file(rptr_filter_filespec,
             debug=debugflg)
     else:
         rptr_filter_list = []
