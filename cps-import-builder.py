@@ -271,7 +271,13 @@ def anytone_write_channels_export(channels_dict, channels_export_file,
             row_list.append("A-Analog")
         else:
             row_list.append("D-Digital")        # Channel Type
-        row_list.append(attr_dict['Power'])     # Transmit Power
+
+        # get power and translate "High" to "Turbo"
+        rf_power = attr_dict['Power']
+        if rf_power == "High":
+            rf_power = "Turbo"
+        row_list.append(rf_power)               # Transmit Power
+
         row_list.append(attr_dict['Bandwidth']) # Bandwidth
         row_list.append(attr_dict['CTCSS Decode'])  # CTCSS/DCS Decode
         row_list.append(attr_dict['CTCSS Encode'])  # CTCSS/DCS Encode
