@@ -681,6 +681,23 @@ def cs800d_write_talk_groups_export(talk_groups_dict,talk_groups_export_file, de
 
 
 
+def opengd77_write_talk_groups_export(talk_groups_dict,talk_groups_export_file,
+        debug=False):
+    """This function writes out an Open GD77 formatted talk groups import file."""
+
+    return
+
+
+
+def opengd77_write_channels_export(channels_dict, channels_export_file,
+        debug=False):
+    """This function writes out an Open GD77 CPS formatted channels file"""
+
+    return
+
+
+
+
 def uv380_write_talk_groups_export(talk_groups_dict,talk_groups_export_file,
         tytera_tg_index_dict, debug=False):
     """This function writes out a Tytera uv380 CPS formatted talk groups import file."""
@@ -1378,7 +1395,7 @@ channels_dict = {}
 rx_groups_dict = {}
 scan_lists_dict = {}
 zones_order_list = []
-supported_cps_targets = ['868','878','cs800d','uv380']
+supported_cps_targets = ['868','878','cs800d','opengd77','uv380']
 
 
 def main():
@@ -1643,6 +1660,34 @@ def main():
         print("   Channels import file: {}".format(
             os.path.basename(channels_output_file)))
         cs800d_write_channels_export(channels_dict,
+            channels_output_file, debug=debugflg)
+
+
+    # Generate import files for Connect Systems CS800D
+    if 'opengd77' in args.cps_target:
+
+        print("")
+        print("Generating import files for Open GD77 CPS")
+
+        # define our export file names
+        talk_groups_output_filename = 'opengd77_talk_groups_{}.csv'.format(
+            isodate)
+        talk_groups_output_file = os.path.join(outputs_dir,
+        talk_groups_output_filename)
+        channels_output_filename = 'opengd77_channels_{}.csv'.format(isodate)
+        channels_output_file = os.path.join(outputs_dir,
+            channels_output_filename)
+
+        # Write out an opengd77 talk groups import file
+        print("   Talk group import file: {}".format(
+            os.path.basename(talk_groups_output_file)))
+        opengd77_write_talk_groups_export(tg_by_num_dict,
+            talk_groups_output_file, debug=debugflg)
+
+        # Write out an opengd77 channel import file
+        print("   Channels import file: {}".format(
+            os.path.basename(channels_output_file)))
+        opengd77_write_channels_export(channels_dict,
             channels_output_file, debug=debugflg)
 
 
