@@ -693,6 +693,72 @@ def opengd77_write_channels_export(channels_dict, channels_export_file,
         debug=False):
     """This function writes out an Open GD77 CPS formatted channels file"""
 
+    header_row = ['Data type','Name','Channel Type',
+        'Rx Frequency','Tx Frequency','Color Code','Timeslot',
+        'Contact','Contact Type','Contact Id','Rx Group','Scanlist','Zone',
+        'RX CTCSS','TX CTCSS','Power','Bandwidth','Rx Only','Squelch',
+        'Tx Admit','TOT','TOT Rekey','Tx Signaling','Rx Signaling',
+        'Privacy Group','Emergency System',
+        'Flags1','Flags2','Flags3','Flags4',
+        'RssiThreshold','VoiceEmphasis','TxSignaling',
+        'UnmuteRule','RxSignaling']
+
+    # Create a dataframe from the channels dict and output it...
+    channels_out_list = []
+    cnt = 1
+    for ch_name in channels_dict.keys():
+
+        # get channel attributes dictionary & channel type
+        attr_dict = channels_dict[ch_name]
+        ch_type = attr_dict['Ch Type']
+
+        # translate contact type
+        contact_type_dict = {'Group Call':'0', 'Private Call':'1'}
+        contact_type = contact_type_dict[attr_dict['Call Type']]
+
+        # now fill out this row in correct order for Open GD77
+        row_list = []
+        row_list.append('CH_DATA')              # Data type
+        row_list.append(ch_name)                # Name
+        row_list.append(ch_type)                # Channel Type
+        row_list.append(attr_dict['RX Freq'])   # Receive Frequency
+        row_list.append(attr_dict['TX Freq'])   # Transmit Frequency
+        if ch_type == "Digital":
+            row_list.append(attr_dict['Color Code']) # Color Code
+            row_list.append(attr_dict['Time Slot'])  # Time Slot
+            row_list.append(attr_dict['Talk Group']) # Contact
+            row_list.append(contact_type)            # Contact Type
+            row_list.append(attr_dict['Talk Group']) # Contact ID
+        else:
+            row_list.append("1")                # Color Code
+            row_list.append("1")                # Time Slot
+            row_list.append("N/A")              # Contact
+            row_list.append("0")                # Contact Type
+            row_list.append("N/A")              # Contact ID
+        row_list.append("None")                 # Rx Group
+        row_list.append("None")                 # Scanlist
+        row_list.append("None")                 # Zone
+
+
+
+        # now add this row to the channels list
+        channels_out_list.append(row_list)
+
+    # Create a data frame
+    channels_out_df = pandas.DataFrame(channels_out_list,
+        columns=header_row)
+
+    # Group channels by Channel Type (analog then digital)
+    channels_out_df.sort_values(by=['Channel Type','Channel Name'],
+        inplace=True)
+    channels_out_df.reset_index(drop=True, inplace=True)
+
+    if debug:
+        print("Writing output to: {}".format(channels_export_file))
+
+    channels_out_df.to_csv(channels_export_file, index=False,
+        header=True, quoting=csv.QUOTE_ALL, line_terminator='\r\n')
+
     return
 
 
