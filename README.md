@@ -20,6 +20,7 @@ You maintain one set of definition files, and can target the
 following supported CPS software packages:
 
 * Anytone AT-D868UV CPS Version 1.35
+* Anytone AT-D578UV CPS Version 1.11
 * Anytone AT-D878UV CPS Version 1.21
 * Connect Systems CS800D CPS Version R4.03.07
 * Open GD77 CPS (git commit 9792f35f)
@@ -411,7 +412,7 @@ Here is the usage message from the current script:
 
 ```
 CPS Import File Builder
-Supported CPS targets: ['868', '878', 'cs800d', 'uv380']
+Supported CPS targets: ['868', '578', '878', 'cs800d', 'uv380']
 Source: https://github.com/n7ekb/cps-import-builder
 
 usage: cps-import-builder.py [-h] --cps CPS_TARGET [--inputdir INPUTDIR]
