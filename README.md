@@ -16,8 +16,8 @@ files for use by your manufacturer's CPS software.
 If you have radios from different manufacturers this tool may
 allow you to synchronize the Talk Groups, Channels, and in some
 cases the Zones across each of your radios without manual editing.
-You maintain one set of definition files, and can target the
-following supported CPS software packages:
+You maintain one set of text-based definition files, and can
+target the following supported CPS software packages:
 
 * Anytone AT-D868UV CPS Version 1.35
 * Anytone AT-D578UV CPS Version 1.11
@@ -25,11 +25,6 @@ following supported CPS software packages:
 * Connect Systems CS800D CPS Version R4.03.07
 * Open GD77 CPS (git commit 9792f35f)
 * Tytera MD-UV380/MD-UV390 Version V1.07
-
-Future support planned:
-
-* CHIRP (for analog channels)
-
 
 
 # Input File Overview
