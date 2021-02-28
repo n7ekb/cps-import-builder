@@ -1,0 +1,5 @@
+Zone,Channel Name,Power,RX Freq,TX Freq,Color Code,Talk Group,TimeSlot,Call Type,TX Permit
+PC ARES Main,ETC-3d DMR,Turbo,145.5100,145.5100,1,99_Simplex,1,Group Call,Always
+PC ARES External,CapPk PNWR,Turbo,440.7125,445.7125,1,PNWR,2,Group Call,Same Color Code
+PC ARES External,Gold PNWR,Turbo,440.7000,445.7000,1,PNWR,2,Group Call,Same Color Code
+PC ARES External,Baldi PNWR,Turbo,441.3500,446.3500,1,PNWR,2,Group Call,Same Color Code
