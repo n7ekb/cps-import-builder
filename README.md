@@ -26,7 +26,7 @@ target the following supported CPS software packages:
 * Open GD77 CPS (git commit 9792f35f)
 * Tytera MD-UV380/MD-UV390 Version V1.07
 
-If you're stumbled onto this tool and don't have any idea
+If you stumbled onto this tool and don't have any idea
 what "SCM-firendly" means, what "git" or "GitHub" is, then
 I recommend you take a look at the following online book:
 
